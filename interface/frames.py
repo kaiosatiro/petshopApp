@@ -159,21 +159,30 @@ class FramePesquisa(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
-        self.head_pet = [['#', 'Nome', 'Raça', 'Tutor 1', 'Tutor 2'], ['1', 'Marley', 'Labrador', 'Caio Satiro']]
-        self.head_tutor = [['#', 'Nome', 'Telefone 1', 'Telefone 2'], ['1', 'Caio Satiro', '11981855170']]
+        self.head_pet = [['#', 'Nome', 'Raça', 'Tutor 1', 'Tutor 2']]
+        self.head_tutor = [['#', 'Nome', 'Telefone 1', 'Telefone 2']]
 
         self.tabela = CTkTable(
             self, column=5, values=self.head_pet,
             hover=True, hover_color='grey', header_color='grey',
-            font=('', 22, 'normal')
+            font=('', 22, 'normal'), command=master.get_linha
         )
-
-        self.tabela.columnconfigure(0, weight=0)
-        self.tabela.columnconfigure(1, weight=2)
-        self.tabela.columnconfigure((2,3,4), weight=1)
-        # self.tabela.rowconfigure(0, weight=1)
-
         self.tabela.pack(expand=True, fill="both", padx=20, pady=20)
+        self.tabela.edit_column(0, width=1)
+
+
+    def set(self, head, dados):
+        for i in range(1, self.tabela.rows+1):
+            self.tabela.delete_row(i)
+        if head == 'PET':
+            ...
+        elif head == 'TUTOR':
+            dados_tabela = self.head_tutor.copy()
+            for i in dados:
+                dados_tabela.append(i)
+            for n, i in enumerate(dados_tabela):
+                self.tabela.add_row(i, n)
+        
 
     def muda_header(self, tipo):
         if tipo == 'PET':
