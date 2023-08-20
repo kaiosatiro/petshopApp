@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
-import os
 from CTkTable import *
+import os
 
 
 class FramePet(ctk.CTkFrame):
@@ -53,6 +53,7 @@ class FramePet(ctk.CTkFrame):
             )
         self.observacoes.grid(row=4, column=0, columnspan=3, sticky='nsew', padx=10, pady=(0, 10))
         self.observacoes.insert("0.0", self.var_observacoes.get())
+        self.observacoes.configure(state='disable')
 
 
     def get(self):
@@ -71,6 +72,11 @@ class FramePet(ctk.CTkFrame):
         self.var_observacoes.set(observacoes)
 
         self.observacoes.delete("0.0", "end") 
+        self.observacoes.insert("0.0", self.var_observacoes.get())
+    
+
+    def reset_observacao(self):
+        self.observacoes.delete('0.0', 'end')
         self.observacoes.insert("0.0", self.var_observacoes.get())
         
     
@@ -155,9 +161,11 @@ class FrameTutor(ctk.CTkFrame):
         self.endereco.insert("0.0", self.var_endereco.get())  
 
 
-class FramePesquisa(ctk.CTkFrame):
+class FramePesquisa(ctk.CTkScrollableFrame):
     def __init__(self, master):
         super().__init__(master)
+
+        self.configure(fg_color='transparent')
 
         self.head_pet = [['#', 'Nome', 'Raça', 'Tutor 1', 'Tutor 2']]
         self.head_tutor = [['#', 'Nome', 'Telefone 1', 'Telefone 2']]
@@ -165,7 +173,7 @@ class FramePesquisa(ctk.CTkFrame):
         self.tabela = CTkTable(
             self, column=5, values=self.head_pet,
             hover=True, hover_color='grey', header_color='grey',
-            font=('', 22, 'normal'), command=master.get_linha
+            font=('', 22, 'normal'), command=master.get_linha,
         )
         self.tabela.pack(expand=True, fill="both", padx=20, pady=20)
         self.tabela.edit_column(0, width=1)
