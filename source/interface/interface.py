@@ -1,4 +1,4 @@
-from frames import *
+from .frames import *
 
 
 class App(ctk.CTk):
@@ -8,7 +8,6 @@ class App(ctk.CTk):
         self.title('petApp')
         self.geometry('1280x720')
         ctk.set_appearance_mode("light")
-        # self.globalgetvar('PY_NOME_PET')
 
         #AREA PRINCIPAL
         self.pet = FramePet(self)
@@ -16,7 +15,7 @@ class App(ctk.CTk):
         self.tutor2 = FrameTutor(self, 'Tutor 2')
 
         self.BT_pesquisar = ctk.CTkButton(
-            self, text='Pesquisar',
+            self, text='Pesquisa!',
             font=('', 32, 'normal'),
             border_spacing=8,
             command=self._pesquisa_button_event
@@ -38,28 +37,28 @@ class App(ctk.CTk):
 
         #AREA DE PESQUISA
         self.var_busca = ctk.StringVar(name='PY_BUSCA', value='')
-        self.var_tipo_busca = ctk.StringVar(name='PY_TIPO_BUSCA')
+        self.var_tipo_busca = ctk.IntVar(name='PY_TIPO_BUSCA')
         
         self.label_busca = ctk.CTkLabel(self, text='Busca:', font=('', 32, 'normal'))
         self.busca = ctk.CTkEntry(
             self, textvariable=self.var_busca,
             font=('', 22, 'normal')
         )
-        self.busca.bind('<Return>', self.query)
+        self.busca.bind('<Return>', self.listagem)
         # self.busca.unbind
                 
-        self.radio_pet = ctk.CTkRadioButton(self, text='PET', font=('', 26, 'normal'), value='PET', variable=self.var_tipo_busca, command=self._radio_callback)
-        self.radio_tutor = ctk.CTkRadioButton(self, text='TUTOR', font=('', 26, 'normal'), value='TUTOR', variable=self.var_tipo_busca, command=self._radio_callback)
-        self.var_tipo_busca.set('PET')
+        self.radio_pet = ctk.CTkRadioButton(self, text='PET', font=('', 26, 'normal'), value=1, variable=self.var_tipo_busca, command=self._radio_callback)
+        self.radio_tutor = ctk.CTkRadioButton(self, text='TUTOR', font=('', 26, 'normal'), value=2, variable=self.var_tipo_busca, command=self._radio_callback)
+        self.var_tipo_busca.set(1)
 
         self.tabela_resultado = FramePesquisa(self)
         self._radio_callback()
 
         self.BT_buscar = ctk.CTkButton(
-            self, text='Buscar',
+            self, text='Pesquisar',
             font=('', 20, 'normal'),
             border_spacing=8,
-            command=self.query
+            command=self.listagem
         )
 
         self.BT_voltar = ctk.CTkButton(
@@ -68,30 +67,31 @@ class App(ctk.CTk):
             border_spacing=8,
             command=self._home_button_event
         )
-        # self.servicos = FrameServicos(self).grid(row=3, column=0, padx=10, pady=(10, 10), sticky='ewsn', columnspan=2)
+        
 
         self._seleciona_frame("home")
 
 
-    def query(self, *args):
+    def listagem(self, *args):
         raise NotImplementedError("Please Implement this method")
     
 
-    def query_salvar_observacoes(self):
+    def salvar_observacoes(self):
         raise NotImplementedError("Please Implement this method")
 
 
-    def get_linha(self, data):
+    def busca(self, data):
         raise NotImplementedError("Please Implement this method")
 
 
     def _radio_callback(self):
         self.tabela_resultado.muda_header(self.var_tipo_busca.get())
+        self.listagem()
 
 
     def _editar_observacao(self):
         self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
-        self.BT_editar_observacoes.configure(text='Salvar', command=self.query_salvar_observacoes)
+        self.BT_editar_observacoes.configure(text='Salvar', command=self.salvar_observacoes)
         self.pet.observacoes.configure(state='normal', fg_color='white')
     
 

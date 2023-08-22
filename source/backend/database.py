@@ -28,6 +28,7 @@ class BD:
         raca INTEGER  NOT NULL,
         porte TEXT NOT NULL,
         sexo TEXT NOT NULL,
+        observacoes TEXT,
         FOREIGN KEY(raca) REFERENCES raca(id)
         );
         """
@@ -89,11 +90,11 @@ if __name__ == '__main__':
    
     cria_pets = """
         INSERT INTO
-        pet (nome, raca, porte, sexo)
+        pet (nome, raca, porte, sexo, observacoes)
         VALUES
-        ('Marley', 1, 'M', 'Macho'),
-        ('Cacau', 2, 'P', 'Femea'),
-        ('Kiki', 2, 'P', 'Femea');
+        ('Marley', 1, 'M', 'Macho', 'Teste'),
+        ('Cacau', 2, 'P', 'Femea', 'Teste'),
+        ('Kiki', 2, 'P', 'Femea', 'Teste');
     """
 
     cria_tutores = """

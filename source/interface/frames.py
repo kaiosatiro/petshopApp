@@ -19,7 +19,7 @@ class FramePet(ctk.CTkFrame):
         self.img_frame =  ctk.CTkFrame(self, fg_color='transparent')
         self.img_frame.grid(row=0, column=0, rowspan=3, sticky='nsew', padx=10, pady=10)
         # image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-        self.foto = ctk.CTkImage(Image.open(os.path.realpath("images/image.png")), size=(500,300))#
+        self.foto = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/image.png")), size=(500,300))#
         self.foto_label = ctk.CTkLabel(self.img_frame, text="", image=self.foto)
         self.foto_label.grid(row=0, column=0, sticky='nsew')
 
@@ -167,13 +167,13 @@ class FramePesquisa(ctk.CTkScrollableFrame):
 
         self.configure(fg_color='transparent')
 
-        self.head_pet = [['#', 'Nome', 'Raça', 'Tutor 1', 'Tutor 2']]
-        self.head_tutor = [['#', 'Nome', 'Telefone 1', 'Telefone 2']]
+        self.head_pet = [['#', 'nº', 'Nome', 'Raça', 'Porte', 'Sexo']]
+        self.head_tutor = [['#', 'nº', 'Nome', 'Telefone 1', 'Telefone 2']]
 
         self.tabela = CTkTable(
             self, column=5, values=self.head_pet,
             hover=True, hover_color='grey', header_color='grey',
-            font=('', 22, 'normal'), command=master.get_linha,
+            font=('', 22, 'normal'), command=master.busca,
         )
         self.tabela.pack(expand=True, fill="both", padx=20, pady=20)
         self.tabela.edit_column(0, width=1)
@@ -182,20 +182,34 @@ class FramePesquisa(ctk.CTkScrollableFrame):
     def set(self, head, dados):
         for i in range(1, self.tabela.rows+1):
             self.tabela.delete_row(i)
-        if head == 'PET':
-            ...
-        elif head == 'TUTOR':
+        if head == 1:
+            dados_tabela = self.head_pet.copy()
+            for i in dados:
+                dados_tabela.append(i)
+            for i, lista in enumerate(dados_tabela):
+                if i == 0:
+                    self.tabela.add_row(lista, i)
+                else:
+                    lista = list(lista)
+                    lista.insert(0, i)
+                    self.tabela.add_row(lista, i)
+        elif head == 2:
             dados_tabela = self.head_tutor.copy()
             for i in dados:
                 dados_tabela.append(i)
-            for n, i in enumerate(dados_tabela):
-                self.tabela.add_row(i, n)
+            for i, lista in enumerate(dados_tabela):
+                if i == 0:
+                    self.tabela.add_row(lista, i)
+                else:
+                    lista = list(lista)
+                    lista.insert(0, i)
+                    self.tabela.add_row(lista, i)
         
 
     def muda_header(self, tipo):
-        if tipo == 'PET':
+        if tipo == 1:
             self.tabela.configure(values=self.head_pet)
-        elif tipo == 'TUTOR':
+        elif tipo == 2:
             self.tabela.configure(values=self.head_tutor)
 
 
