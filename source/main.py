@@ -3,6 +3,7 @@
 import backend.functions as fn
 import interface.interface as it
 
+
 class main(it.App):
     def __init__(self):
         super().__init__()
@@ -10,32 +11,102 @@ class main(it.App):
         self.racas_lista = [r[0] for r in fn.consulta_racas()]
         self.porte_lista = ['P', 'M', 'G']
         self.sexo_lista = ['Macho', 'Fêmea']
+        self.freq_lista = ['Semanal', 'Mensal', 'Esporático']
 
-        self._seleciona_frame('pesquisa')
+        self._seleciona_frame(2)
     
 
     def listagem(self, *args):
         dado = self.var_busca.get()
-        print(dado)
         if self.var_tipo_busca.get() == 1:
             call = fn.consulta_pet(dado)
             self.tabela_resultado.set(1, call)
         elif self.var_tipo_busca.get() == 2:
             call = fn.consulta_tutor(dado)
-            print(call)
             self.tabela_resultado.set(2, call)
     
 
+    def busca_dados(self, *args):
+        if args[0]['row'] == 0:
+            pass
+        
+        elif self.var_tipo_busca.get() == 1:
+            linha = args[0]['row']
+            pet_id = int(self.tabela_resultado.get_id(linha))
+            call_a = fn.consulta_pet_porId(pet_id)
+            call_b = fn.consulta_relacao_tutores_pet(pet_id)
+
+            self._seleciona_frame(1)
+
+            self.pet.set(
+                call_a[0][0],
+                call_a[0][1],
+                call_a[0][2],
+                call_a[0][3],
+                call_a[0][4],
+                call_a[0][5],                
+            )
+
+            self.tutor1.set(
+                call_b[0][0],
+                call_b[0][1],
+                call_b[0][2],
+                call_b[0][3],
+                call_b[0][4],
+            )
+
+            if len(call_b) == 2:    
+                self.tutor2.set(
+                    call_b[0][0],
+                    call_b[1][1],
+                    call_b[1][2],
+                    call_b[1][3],
+                    call_b[1][4],
+                )
+            else:
+                self.tutor2.set(
+                    None,
+                    '-',
+                    '-',
+                    '-',
+                    '...',
+                )
+
+
+        elif self.var_tipo_busca.get() == 2:
+            linha = args[0]['row']
+            tutor_id = self.tabela_resultado.get_id(linha)
+            tutor_nome = self.tabela_resultado.get_nome(linha)
+            call = fn.consulta_relacao_pets_tutor(tutor_id)
+            if call:
+                self.label_titulo_tabela.configure(text=f'{tutor_nome} PETS')
+                self.tabela_resultado.set(1, call)
+            else:
+                self.label_titulo_tabela.configure(text=f'{tutor_nome} não tem Pets cadastrados')
+                self.tabela_resultado.set(1, call)
+            self.var_tipo_busca.set(1)
+
+
     def salvar_observacoes(self):
-        ...
+        pet = self.pet.get()
+        fn.atualiza_observacao(int(pet['id']), pet['observacoes'])
+        call = fn.consulta_pet_porId(int(pet['id']))
 
-
-    def busca(self, data):
-        ...
+        self.pet.set(
+                call[0][0],
+                call[0][1],
+                call[0][2],
+                call[0][3],
+                call[0][4],
+                call[0][5],                
+            )
+        
+        self.BT_cancelar_editar.grid_forget()
+        self.BT_editar_observacoes.configure(text='Editar', command=self._editar_observacao)
+        self.pet.observacoes.configure(state='disable', fg_color='transparent')
 
 
 if __name__ == '__main__':
     app = main()
     app.mainloop()
-    # print(app.racas_lista)
 

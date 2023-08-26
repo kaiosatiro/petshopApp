@@ -39,7 +39,8 @@ class BD:
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         telefone1 TEXT NOT NULL,
-        telefone2 TEXT NOT NULL
+        telefone2 TEXT,
+        endereco TEXT
         );
         """
         self.executa_query(tabela_tutor)
@@ -99,11 +100,13 @@ if __name__ == '__main__':
 
     cria_tutores = """
     INSERT INTO
-    tutor (nome, telefone1, telefone2)
+    tutor (nome, telefone1, telefone2, endereco)
     VALUES
-    ('Chico', '11911111111', ''),
-    ('Neusa', '11922222222', ''),
-    ('Caio', '', '11933333333');
+    ('Chico', '11911111111', '', 'Rua Tal, vila lá 96'),
+    ('Neusa', '11922222222', '', 'Rua Tal, vila lá 96'),
+    ('Caio', '', '11933333333', 'Rua Tal, vila lá 96'),
+    ('TESTE', '', '11999999999', 'Rua Tal, vila lá 96'),
+    ('TESTEB', '', '1919191919', 'Rua Tal, vila lá 96');
     """
 
     cria_racas = """

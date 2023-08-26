@@ -9,12 +9,11 @@ class FramePet(ctk.CTkFrame):
         super().__init__(master)
         self.grid_columnconfigure(2, weight=1)
         self.grid_rowconfigure(4, weight=1)
-
+        
+        self.var_id = ctk.IntVar(name='PY_ID_PET', value=None)
         self.var_nome = ctk.StringVar(name='PY_NOME_PET', value='-')
         self.var_raca = ctk.StringVar(name='PY_RACA', value='-')
-        self.var_porte = ctk.StringVar(name='PY_PORTE', value='-')
-        self.var_observacoes = ctk.StringVar(name='PY_OBERVACOES', value='...')
-        
+        self.var_porte = ctk.StringVar(name='PY_PORTE', value='-')      
 
         self.img_frame =  ctk.CTkFrame(self, fg_color='transparent')
         self.img_frame.grid(row=0, column=0, rowspan=3, sticky='nsew', padx=10, pady=10)
@@ -52,32 +51,42 @@ class FramePet(ctk.CTkFrame):
             fg_color='transparent'
             )
         self.observacoes.grid(row=4, column=0, columnspan=3, sticky='nsew', padx=10, pady=(0, 10))
-        self.observacoes.insert("0.0", self.var_observacoes.get())
+        self.observacoes.insert("0.0", '...')
         self.observacoes.configure(state='disable')
 
 
     def get(self):
         return {
+            'id': self.var_id.get(),
             'nome': self.var_nome.get(),
             'raca': self.var_raca.get(),
             'porte': self.var_porte.get(),
-            'obervacoes': self.var_observacoes.get()
+            'observacoes': self.get_observacoes()
         }
     
 
-    def set(self, nome:str, raca:str, porte:str, observacoes:str):
+    def set(self, id:int, nome:str, raca:str, porte:str, sexo:str, observacoes:str):
+        self.var_id.set(id)
         self.var_nome.set(nome)
         self.var_raca.set(raca)
         self.var_porte.set(porte)
-        self.var_observacoes.set(observacoes)
+        self.set_observacoes(observacoes)
 
-        self.observacoes.delete("0.0", "end") 
-        self.observacoes.insert("0.0", self.var_observacoes.get())
+
+    def get_observacoes(self):
+        return self.observacoes.get('0.0', 'end')
     
+
+    def set_observacoes(self, txt):
+        self.observacoes.configure(state='normal')
+        self.observacoes.delete("0.0", "end")
+        self.observacoes.insert("0.0", txt)
+        self.observacoes.configure(state='disable')
+
 
     def reset_observacao(self):
         self.observacoes.delete('0.0', 'end')
-        self.observacoes.insert("0.0", self.var_observacoes.get())
+        self.observacoes.insert("0.0", '...')
         
     
 class FrameTutor(ctk.CTkFrame):
@@ -87,10 +96,11 @@ class FrameTutor(ctk.CTkFrame):
         self.grid_columnconfigure((1,3), weight=1)
         self.grid_rowconfigure(4, weight=1)
 
-        self.var_nome = ctk.StringVar(name='PY_NOME_TUTOR', value='-')
-        self.var_tel1 = ctk.StringVar(name='PY_TEL1_TUTOR', value='-')
-        self.var_tel2 = ctk.StringVar(name='PY_TEL2_TUTOR', value='-')
-        self.var_endereco = ctk.StringVar(name='PY_ENDERECO', value='...')
+        self.var_id = ctk.IntVar(value=None)
+        self.var_nome = ctk.StringVar(value='-')
+        self.var_tel1 = ctk.StringVar(value='-')
+        self.var_tel2 = ctk.StringVar(value='-')
+        self.var_endereco = ctk.StringVar(value='...')
 
         self.titulo = ctk.CTkLabel(
             self, text=titulo, font=('', 28, 'bold'),
@@ -144,6 +154,7 @@ class FrameTutor(ctk.CTkFrame):
 
     def get(self):
         return {
+            'id': self.var_id.get(),
             'nome':self.var_nome.get(),
             'tel1': self.var_tel1.get(),
             'tel2': self.var_tel2.get(),
@@ -151,7 +162,8 @@ class FrameTutor(ctk.CTkFrame):
         }
     
 
-    def set(self, nome:str, tel1:str, tel2:str, endereco:str):
+    def set(self, id:int, nome:str, tel1:str, tel2:str, endereco:str):
+        self.var_id.set(id)
         self.var_nome.set(nome)
         self.var_tel1.set(tel1)       
         self.var_tel2.set(tel2)       
@@ -167,17 +179,15 @@ class FramePesquisa(ctk.CTkScrollableFrame):
 
         self.configure(fg_color='transparent')
 
-        self.head_pet = [['#', 'nº', 'Nome', 'Raça', 'Porte', 'Sexo']]
-        self.head_tutor = [['#', 'nº', 'Nome', 'Telefone 1', 'Telefone 2']]
+        self.head_pet = [['#', 'id', 'Nome', 'Raça', 'Porte', 'Sexo']]
+        self.head_tutor = [['#', 'id', 'Nome', 'Telefone 1', 'Telefone 2', 'Frequência']]
 
         self.tabela = CTkTable(
-            self, column=5, values=self.head_pet,
+            self, column=6, values=self.head_pet,
             hover=True, hover_color='grey', header_color='grey',
-            font=('', 22, 'normal'), command=master.busca,
+            font=('', 22, 'normal'), command=master.busca_dados,
         )
         self.tabela.pack(expand=True, fill="both", padx=20, pady=20)
-        self.tabela.edit_column(0, width=1)
-
 
     def set(self, head, dados):
         for i in range(1, self.tabela.rows+1):
@@ -190,7 +200,7 @@ class FramePesquisa(ctk.CTkScrollableFrame):
                 if i == 0:
                     self.tabela.add_row(lista, i)
                 else:
-                    lista = list(lista)
+                    lista = list(lista )
                     lista.insert(0, i)
                     self.tabela.add_row(lista, i)
         elif head == 2:
@@ -204,6 +214,13 @@ class FramePesquisa(ctk.CTkScrollableFrame):
                     lista = list(lista)
                     lista.insert(0, i)
                     self.tabela.add_row(lista, i)
+                    
+        self.tabela.edit_column(0, width=10)
+        self.tabela.edit_column(1, width=100)
+        self.tabela.edit_column(2, width=400)
+        self.tabela.edit_column(3, width=150)
+        self.tabela.edit_column(4, width=150)
+        self.tabela.edit_column(4, width=150)
         
 
     def muda_header(self, tipo):
@@ -211,6 +228,14 @@ class FramePesquisa(ctk.CTkScrollableFrame):
             self.tabela.configure(values=self.head_pet)
         elif tipo == 2:
             self.tabela.configure(values=self.head_tutor)
+    
+
+    def get_id(self, linha):
+        return int(self.tabela.get(linha, 1))
+    
+
+    def get_nome(self, linha):
+        return self.tabela.get(linha, 2)
 
 
 # class FrameServicos(ctk.CTkFrame):

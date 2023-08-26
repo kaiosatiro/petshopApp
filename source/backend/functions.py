@@ -22,8 +22,32 @@ WHERE pet.nome LIKE '%{q}%';
     return call
 
 
+def consulta_pet_porId(q):
+    query = f"""
+SELECT
+    pet.id,
+    pet.nome,
+    raca.raca,
+    pet.porte,
+    pet.sexo,
+    pet.observacoes
+FROM
+ pet
+JOIN raca ON raca.id = pet.raca
+WHERE pet.id = {q};
+"""
+    call = bd.consulta_query(query)
+    return call
+
+
 def consulta_tutor(q):
     query = f"SELECT * FROM tutor WHERE nome LIKE '%{q}%';"
+    call = bd.consulta_query(query)
+    return call
+
+
+def consulta_tutor_porId(q):
+    query = f"SELECT * FROM tutor WHERE id = {q};"
     call = bd.consulta_query(query)
     return call
 
@@ -136,7 +160,7 @@ SET
     porte = '{porte}',
     sexo = '{sexo}'
 WHERE
-  id = {id}
+  id = {id};
 """
     call = bd.executa_query(query)
     return call
@@ -147,9 +171,9 @@ def atualiza_observacao(id:int, data:str):
 UPDATE
   pet
 SET
-  observacoes = {data}
+  observacoes = '{data}'
 WHERE
-  id = {id}
+  id = {id};
 """
     call = bd.executa_query(query)
     return call
@@ -164,7 +188,7 @@ SET
     telefone1 = '{tel1}',
     telefone2 = '{tel2}'
 WHERE
-  id = {id}
+  id = {id};
 """
     call = bd.executa_query(query)
     return call
