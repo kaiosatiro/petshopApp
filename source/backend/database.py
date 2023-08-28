@@ -50,8 +50,8 @@ class BD:
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tutor_id INTEGER NOT NULL,
         pet_id INTERGER NOT NULL,
-        FOREIGN KEY(tutor_id) REFERENCES tutor(id),
-        FOREIGN KEY(pet_id) REFERENCES pet(id)
+        FOREIGN KEY(tutor_id) REFERENCES tutor(id) ON DELETE CASCADE,
+        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE
         );
         """
         self.executa_query(tabela_relacao_petTutor)

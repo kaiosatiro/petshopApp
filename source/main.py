@@ -3,25 +3,28 @@
 import backend.functions as fn
 import interface.interface as it
 
+# PRAGMA foreign_keys = TRUE
 
 class main(it.App):
     def __init__(self):
         super().__init__()
         # self.globalgetvar('PY_NOME_PET')
-        self.racas_lista = [r[0] for r in fn.consulta_racas()]
-        self.porte_lista = ['P', 'M', 'G']
-        self.sexo_lista = ['Macho', 'Fêmea']
         self.freq_lista = ['Semanal', 'Mensal', 'Esporático']
 
-        self._seleciona_frame(2)
+        self.racas_lista = [r[0] for r in fn.consulta_racas()]
+        self.pet.set_racas(self.racas_lista)
+
+        self._seleciona_frame(1)
     
 
     def listagem(self, *args):
         dado = self.var_busca.get()
         if self.var_tipo_busca.get() == 1:
+            self.label_titulo_tabela.configure(text='PETS')
             call = fn.consulta_pet(dado)
             self.tabela_resultado.set(1, call)
         elif self.var_tipo_busca.get() == 2:
+            self.label_titulo_tabela.configure(text='TUTORES')
             call = fn.consulta_tutor(dado)
             self.tabela_resultado.set(2, call)
     
@@ -35,8 +38,6 @@ class main(it.App):
             pet_id = int(self.tabela_resultado.get_id(linha))
             call_a = fn.consulta_pet_porId(pet_id)
             call_b = fn.consulta_relacao_tutores_pet(pet_id)
-
-            self._seleciona_frame(1)
 
             self.pet.set(
                 call_a[0][0],
@@ -71,6 +72,8 @@ class main(it.App):
                     '-',
                     '...',
                 )
+            
+            self._seleciona_frame(1)
 
 
         elif self.var_tipo_busca.get() == 2:
@@ -103,7 +106,8 @@ class main(it.App):
         
         self.BT_cancelar_editar.grid_forget()
         self.BT_editar_observacoes.configure(text='Editar', command=self._editar_observacao)
-        self.pet.observacoes.configure(state='disable', fg_color='transparent')
+        self.pet.observacoes.configure(state='disabled', fg_color='transparent')
+        self.BT_pesquisar.configure(state='normal')
 
 
 if __name__ == '__main__':
