@@ -1,6 +1,7 @@
 from .frames import *
 
 
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -8,14 +9,22 @@ class App(ctk.CTk):
         self.title('petApp')
         self.geometry('1280x720')
         ctk.set_appearance_mode("light")
+        self.status_edicao = 0
 
-        #AREA PRINCIPAL
+        #TELA PRINCIPAL      
+        self.BT_racas = ctk.CTkButton(
+            self, text='Raças',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            command=self._frame_racas
+        )
+        self.racas = None
+
         self.pet = FramePet(self)
         self.tutor1 = FrameTutor(self, 'Tutor 1')   
         self.tutor2 = FrameTutor(self, 'Tutor 2')
 
-        self.status_edicao = 0
-
+        
         self.BT_pesquisar = ctk.CTkButton(
             self, text='Pesquisa!',
             font=('', 32, 'normal'),
@@ -97,6 +106,11 @@ class App(ctk.CTk):
         return self.racas_lista
     
 
+    def _frame_racas(self):
+        if self.racas is None or not self.racas.winfo_exists():
+            self.racas = FrameRacas(self)         
+
+
     def _radio_callback(self):
         if self.var_tipo_busca.get() == 1:
             self.label_titulo_tabela.configure(text='PETS')
@@ -144,6 +158,7 @@ class App(ctk.CTk):
             self.grid_columnconfigure(1, weight=1)
             self.grid_rowconfigure((0,3), weight=0)
             self.grid_rowconfigure((1,2), weight=1)
+            self.BT_racas.grid(row=0, column=1, padx=10, pady=(10, 0), sticky='e')
             self.pet.grid(row=1, column=0, padx=10, pady=(10, 0), rowspan=2, sticky='ewsn')
             self.tutor1.grid(row=1, column=1, padx=10, pady=(10, 0), sticky='ewsn')
             self.tutor2.grid(row=2, column=1, padx=10, pady=(10, 0), sticky='ewsn')
@@ -156,6 +171,7 @@ class App(ctk.CTk):
                 
             
         else:
+            self.BT_racas.grid_forget()
             self.pet.grid_forget()
             self.tutor1.grid_forget()
             self.tutor2.grid_forget()

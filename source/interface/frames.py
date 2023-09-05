@@ -54,7 +54,7 @@ class FramePet(ctk.CTkFrame):
 
         self.label_raca = ctk.CTkLabel(self, text='Raça:', font=('', 28, 'bold')).grid(row=1, column=1)
         
-        self.raca_ed = ctk.CTkComboBox(
+        self.raca_ed = ctk.CTkComboBox( 
             self, variable=self.var_raca_ed,
             state='normal', values=self.racas_lista,
             font=('', 28, 'normal'), dropdown_font=('', 26, 'normal'),
@@ -338,3 +338,40 @@ class FramePesquisa(ctk.CTkScrollableFrame):
 
     def get_nome(self, linha):
         return self.tabela.get(linha, 2)
+
+
+class FrameRacas(ctk.CTkToplevel):
+    def __init__(self, racas:list, command=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("300x600")
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1) 
+            
+        self.frame = ctk.CTkScrollableFrame(self)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
+            # if self.command is not None:
+            #     button.configure(command=lambda: self.command(item))
+        
+        lista = ["AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD","AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD","AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD",]
+
+        self.label_list = []
+        self.button_list = []
+        bt_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/bt_img.png")), size=(28,28))
+        for i, item in enumerate(lista):
+            label = ctk.CTkLabel(self.frame, text=item, font=('', 20, 'normal'))
+            button = ctk.CTkButton(self.frame, text='', width=28, image=bt_img)
+            label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
+            button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5, sticky="e")
+            self.label_list.append(label)
+            self.button_list.append(button)
+
+        self.BT_add = ctk.CTkButton(
+            self, text='Add',
+            font=('', 22, 'normal'),
+            border_spacing=4,
+        )
+        self.BT_add.grid(row=1, column=0, pady=(0, 10))
+
+        self.grab_set() 
