@@ -3,7 +3,7 @@ from .database import *
 
 bd = BD()
 
-# CONSULTAS
+# ____________________ CONSULTAS ___________________
 def consulta_pet(q):
     query = f"""
 SELECT
@@ -88,7 +88,7 @@ def consulta_racas():
     return call
 
 
-# ADICOES
+# ________________________ ADICOES ____________________________
 def add_pet(nome:str, raca:str, porte:str, sexo:str):
     query = f"""
 INSERT INTO

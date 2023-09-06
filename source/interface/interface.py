@@ -1,7 +1,6 @@
 from .frames import *
 
 
-
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -18,8 +17,9 @@ class App(ctk.CTk):
             border_spacing=4,
             command=self._frame_racas
         )
-        self.racas = None
+        self.racas = []
 
+        self.racas_frame = None
         self.pet = FramePet(self)
         self.tutor1 = FrameTutor(self, 'Tutor 1')   
         self.tutor2 = FrameTutor(self, 'Tutor 2')
@@ -82,9 +82,12 @@ class App(ctk.CTk):
             command=self._home_button_event
         )
         
-
         # self._seleciona_frame(1)
 
+
+    def set_racas_lista(self):
+        raise NotImplementedError("Please Implement this method")
+        
 
     def listagem(self, *args):
         raise NotImplementedError("Please Implement this method")
@@ -101,14 +104,18 @@ class App(ctk.CTk):
     def busca_dados(self, data):
         raise NotImplementedError("Please Implement this method")
     
+
+    def adicionar_raca(self, raca):
+        raise NotImplementedError("Please Implement this method")
+
     
-    def set_racas(self):
-        return self.racas_lista
-    
+    def editar_raca(self):
+        raise NotImplementedError("Please Implement this method")
+      
 
     def _frame_racas(self):
-        if self.racas is None or not self.racas.winfo_exists():
-            self.racas = FrameRacas(self)         
+        if self.racas_frame is None or not self.racas_frame.winfo_exists():
+            self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)         
 
 
     def _radio_callback(self):

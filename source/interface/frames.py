@@ -341,8 +341,10 @@ class FramePesquisa(ctk.CTkScrollableFrame):
 
 
 class FrameRacas(ctk.CTkToplevel):
-    def __init__(self, racas:list, command=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    #button.configure(command=lambda: self.command(item))
+    def __init__(self, master, racas:list, add_fn, edit_fn, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.title("Raças")
         self.geometry("300x600")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1) 
@@ -350,28 +352,51 @@ class FrameRacas(ctk.CTkToplevel):
         self.frame = ctk.CTkScrollableFrame(self)
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
-
-            # if self.command is not None:
-            #     button.configure(command=lambda: self.command(item))
         
-        lista = ["AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD","AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD","AAAAAAAAA", "BBBBBBBBB", "CCCCCCCCC", "DDDDDDDDD",]
-
+        self.lista = racas
         self.label_list = []
         self.button_list = []
-        bt_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/bt_img.png")), size=(28,28))
-        for i, item in enumerate(lista):
-            label = ctk.CTkLabel(self.frame, text=item, font=('', 20, 'normal'))
-            button = ctk.CTkButton(self.frame, text='', width=28, image=bt_img)
-            label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
-            button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5, sticky="e")
-            self.label_list.append(label)
-            self.button_list.append(button)
+        self.bt_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/bt_img.png")), size=(28,28))      
 
         self.BT_add = ctk.CTkButton(
             self, text='Add',
             font=('', 22, 'normal'),
             border_spacing=4,
+            command=lambda: self._add_action(add_fn)
         )
         self.BT_add.grid(row=1, column=0, pady=(0, 10))
 
-        self.grab_set() 
+        self._listagem()
+        self.grab_set()        
+    
+    
+    def _listagem(self):
+        for i, j in zip(self.label_list, self.button_list):
+            i.destroy()
+            j.destroy()
+        
+        self.label_list.clear()
+        self.button_list.clear()
+
+        for i, item in enumerate(self.lista):
+            label = ctk.CTkLabel(self.frame, text=item, font=('', 20, 'normal'))
+            button = ctk.CTkButton(self.frame, text='', width=28, image=self.bt_img, command=self._edit_action)
+            label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
+            button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5, sticky="e")
+            self.label_list.append(label)
+            self.button_list.append(button)
+    
+
+    def _add_action(self, fn):
+        get = ctk.CTkInputDialog(text="Digite a nova Raça:", title="Raça").get_input()
+        if get and get != '':
+            fn(get)
+            self._listagem()
+        self._listagem() ## APOS RODAR A FUNCAO FN, A LISTA QUE APONTA PARA A LISTA DO MASTER FICA VAZIA. PARECE QUE MUDA O ENDEREÇO DA MEMORIA
+
+
+    def _edit_action(self):
+        ...
+    
+
+    

@@ -9,13 +9,26 @@ class main(it.App):
     def __init__(self):
         super().__init__()
         # self.globalgetvar('PY_NOME_PET')
-        self.freq_lista = ['Semanal', 'Mensal', 'Esporático']
-
-        self.racas_lista = [r[0] for r in fn.consulta_racas()]
-        self.pet.set_racas(self.racas_lista)
-
+        # self.freq_lista = ['Semanal', 'Mensal', 'Esporático']
+        
+        self.set_racas_lista()
+        self.pet.set_racas(self.racas)
         self._seleciona_frame(1)
     
+
+    def set_racas_lista(self):
+        self.racas.clear()
+        self.racas = [r[0] for r in fn.consulta_racas()]
+    
+
+    def adicionar_raca(self, raca):
+        fn.add_raca(raca)
+        self.set_racas_lista()
+    
+
+    def editar_raca(self):
+        ...
+        
 
     def listagem(self, *args):
         dado = self.var_busca.get()
@@ -76,7 +89,7 @@ class main(it.App):
             self._seleciona_frame(1)
 
 
-        elif self.var_tipo_busca.get() == 2:
+        elif self.var_tipo_busca.get()  == 2:
             linha = args[0]['row']
             tutor_id = self.tabela_resultado.get_id(linha)
             tutor_nome = self.tabela_resultado.get_nome(linha)
