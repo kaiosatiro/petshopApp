@@ -194,6 +194,19 @@ WHERE
     return call
 
 
+def atualiza_raca(raca:str, raca_nova:str):
+    query = f"""
+UPDATE
+  raca
+SET
+    raca = '{raca_nova}'
+WHERE
+  raca = '{raca}';
+"""
+    call = bd.executa_query(query)
+    return call
+
+
 # REMOCOES
 def remove_pet(id:int):
     query = f"DELETE FROM pet WHERE id = {id};"
@@ -231,4 +244,4 @@ if __name__ =='__main__':
     # print(p)
     # q = bd.consulta_query(f"SELECT COUNT(id) FROM relacao WHERE pet_id = 2;")
     # print(type(q[0][0]))
-    ...
+    print(consulta_racas())

@@ -59,7 +59,7 @@ class BD:
         tabela_raca = """
         CREATE TABLE IF NOT EXISTS raca (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        raca TEXT NOT NULL
+        raca TEXT NOT NULL UNIQUE
         );
         """
         self.executa_query(tabela_raca)
@@ -70,9 +70,9 @@ class BD:
         try:
             cursor.execute(query)
             self.conexao.commit()
-            print("Query executa com sucesoo")
+            return 1
         except Error as e:
-            print(f"Um erro '{e}' ocorreu")
+            return e.sqlite_errorcode
 
 
     def consulta_query(self, query):
@@ -83,7 +83,7 @@ class BD:
             result = cursor.fetchall()
             return result
         except Error as e:
-            print(f"The error '{e}' occurred")
+            return e.sqlite_errorcode
 
 
 if __name__ == '__main__':

@@ -353,6 +353,9 @@ class FrameRacas(ctk.CTkToplevel):
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
         
+        self.add_fn = add_fn
+        self.edit_fn = edit_fn
+
         self.lista = racas
         self.label_list = []
         self.button_list = []
@@ -362,7 +365,7 @@ class FrameRacas(ctk.CTkToplevel):
             self, text='Add',
             font=('', 22, 'normal'),
             border_spacing=4,
-            command=lambda: self._add_action(add_fn)
+            command=self._add_action
         )
         self.BT_add.grid(row=1, column=0, pady=(0, 10))
 
@@ -380,23 +383,28 @@ class FrameRacas(ctk.CTkToplevel):
 
         for i, item in enumerate(self.lista):
             label = ctk.CTkLabel(self.frame, text=item, font=('', 20, 'normal'))
-            button = ctk.CTkButton(self.frame, text='', width=28, image=self.bt_img, command=self._edit_action)
+            button = ctk.CTkButton(self.frame, text='', width=28, image=self.bt_img, command=lambda item=item: self._edit_action(item))
             label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
             button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5, sticky="e")
             self.label_list.append(label)
             self.button_list.append(button)
     
 
-    def _add_action(self, fn):
-        get = ctk.CTkInputDialog(text="Digite a nova Raça:", title="Raça").get_input()
+    def _add_action(self):
+        cx_dlg = ctk.CTkInputDialog(text="Digite a nova Raça:", title="Adicionar Raça")
+        get = cx_dlg.get_input()
         if get and get != '':
-            fn(get)
+            self.add_fn(get)
             self._listagem()
-        self._listagem() ## APOS RODAR A FUNCAO FN, A LISTA QUE APONTA PARA A LISTA DO MASTER FICA VAZIA. PARECE QUE MUDA O ENDEREÇO DA MEMORIA
-
-
-    def _edit_action(self):
-        ...
+        self.focus_force()
     
 
-    
+    def _edit_action(self, raca):
+        cx_dlg = ctk.CTkInputDialog(text="Edite o nome da Raça:", title="Editar Raça", placeholder_text=raca)
+        get = cx_dlg.get_input()
+        if get and get != '':
+            self.edit_fn(raca, get)
+            self._listagem()
+        self.focus_force()
+
+     

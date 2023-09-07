@@ -2,7 +2,7 @@
 # from interface.interface import *
 import backend.functions as fn
 import interface.interface as it
-
+from  CTkMessagebox import CTkMessagebox
 # PRAGMA foreign_keys = TRUE
 
 class main(it.App):
@@ -18,17 +18,25 @@ class main(it.App):
 
     def set_racas_lista(self):
         self.racas.clear()
-        self.racas = [r[0] for r in fn.consulta_racas()]
+        for r in fn.consulta_racas():
+            self.racas.append(r[0])
     
 
     def adicionar_raca(self, raca):
-        fn.add_raca(raca)
-        self.set_racas_lista()
+        call = fn.add_raca(raca)
+        if call == 1:
+            self.set_racas_lista()
+        elif call == 2067:
+            CTkMessagebox(title="Erro", message="Raça já existe", icon="cancel", font=('', 18, 'normal'))
     
 
-    def editar_raca(self):
-        ...
-        
+    def editar_raca(self, raca, raca_nova):
+        call = fn.atualiza_raca(raca, raca_nova)
+        if call == 1:
+            self.set_racas_lista()
+        if call == 2067:
+            CTkMessagebox(title="Erro", message="Raça já existe", icon="cancel", font=('', 18, 'normal'))
+
 
     def listagem(self, *args):
         dado = self.var_busca.get()

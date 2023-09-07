@@ -115,7 +115,7 @@ class App(ctk.CTk):
 
     def _frame_racas(self):
         if self.racas_frame is None or not self.racas_frame.winfo_exists():
-            self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)         
+            self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)
 
 
     def _radio_callback(self):
