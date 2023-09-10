@@ -1,4 +1,8 @@
-from .frames import *
+from .frames.pesquisa import *
+from .frames.pet import *
+from .frames.racas import *
+from .frames.tutor import *
+from .frames.tutores_lista import *
 
 
 class App(ctk.CTk):
@@ -8,23 +12,47 @@ class App(ctk.CTk):
         self.title('petApp')
         self.geometry('1280x720')
         ctk.set_appearance_mode("light")
-        self.status_edicao = 0
-
-        #TELA PRINCIPAL      
-        self.BT_racas = ctk.CTkButton(
-            self, text='Raças',
-            font=('', 26, 'normal'),
-            border_spacing=4,
-            command=self._frame_racas
-        )
+        
+        #VARS
         self.racas = []
+        self.lista_tutores = []
+        self.var_busca = ctk.StringVar(name='PY_BUSCA', value='')
+        self.var_tipo_busca = ctk.IntVar(name='PY_TIPO_BUSCA', value=1)
 
+        #FRAMES
         self.racas_frame = None
+        self.tutores_listagem = None
         self.pet = FramePet(self)
         self.tutor1 = FrameTutor(self, 'Tutor 1')   
         self.tutor2 = FrameTutor(self, 'Tutor 2')
-
+        self.tabela_resultado = FramePesquisa(self)
         
+        #AREA DE PESQUISA
+        self.label_busca = ctk.CTkLabel(self, text='Busca:', font=('', 32, 'normal'))
+        self.entrada_busca = ctk.CTkEntry(
+            self, textvariable=self.var_busca,
+            font=('', 22, 'normal'))
+        self.entrada_busca.bind('<Return>', self.listagem)
+
+        self.radio_pet = ctk.CTkRadioButton(self, text='PET', font=('', 26, 'normal'), value=1, variable=self.var_tipo_busca, command=self._radio_callback)
+        self.radio_tutor = ctk.CTkRadioButton(self, text='TUTOR', font=('', 26, 'normal'), value=2, variable=self.var_tipo_busca, command=self._radio_callback)
+        self.label_titulo_tabela = ctk.CTkLabel(self, text='', font=('', 32, 'normal'))
+
+        #BUTTONS
+        self.BT_voltar = ctk.CTkButton(
+            self, text='Voltar',
+            font=('', 22, 'normal'),
+            border_spacing=8,
+            command=self._home_button_event
+        )
+
+        self.BT_buscar = ctk.CTkButton(
+            self, text='Pesquisar',
+            font=('', 20, 'normal'),
+            border_spacing=8,
+            command=self.listagem
+        )     
+
         self.BT_pesquisar = ctk.CTkButton(
             self, text='Pesquisa!',
             font=('', 32, 'normal'),
@@ -43,79 +71,95 @@ class App(ctk.CTk):
         self.BT_cancelar_editar = ctk.CTkButton(
             self, text='Cancelar',
             font=('', 32, 'normal'),
-            border_spacing=8,
-            command=self._cancelar_edicao
+            border_spacing=8
         )
 
-        #AREA DE PESQUISA
-        self.var_busca = ctk.StringVar(name='PY_BUSCA', value='')
-        self.var_tipo_busca = ctk.IntVar(name='PY_TIPO_BUSCA')
-        
-        self.label_busca = ctk.CTkLabel(self, text='Busca:', font=('', 32, 'normal'))
-        self.entrada_busca = ctk.CTkEntry(
-            self, textvariable=self.var_busca,
-            font=('', 22, 'normal')
+        self.BT_racas = ctk.CTkButton(
+            self, text='Raças',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            command=self._frame_racas
         )
-        self.entrada_busca.bind('<Return>', self.listagem)
-        # self.busca.unbind
-                
-        self.radio_pet = ctk.CTkRadioButton(self, text='PET', font=('', 26, 'normal'), value=1, variable=self.var_tipo_busca, command=self._radio_callback)
-        self.radio_tutor = ctk.CTkRadioButton(self, text='TUTOR', font=('', 26, 'normal'), value=2, variable=self.var_tipo_busca, command=self._radio_callback)
-        self.var_tipo_busca.set(1)
-        
-        self.label_titulo_tabela = ctk.CTkLabel(self, text='', font=('', 32, 'normal'))
 
-        self.tabela_resultado = FramePesquisa(self)
+        add_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/add_img.png")), size=(28,28))
+        self.BT_add_pet = ctk.CTkButton(
+            self, text='Pet',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            image=add_img,
+            compound='left',
+            width=130,
+            height=50,
+            command=self._adicionar_pet
+        )
+
+        self.BT_add_tutor = ctk.CTkButton(
+            self, text='Tutor',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            image=add_img,
+            compound='left',
+            width=150,
+            height=50,
+            command=self._adicionar_tutor
+        )
+
+        self.BT_remover_pet = ctk.CTkButton(
+            self, text='Excluir Pet',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            width=150,
+            hover_color='red',
+            command=self.excluir_pet    
+        )
+        
         self._radio_callback()
+        self._seleciona_frame(1)
 
-        self.BT_buscar = ctk.CTkButton(
-            self, text='Pesquisar',
-            font=('', 20, 'normal'),
-            border_spacing=8,
-            command=self.listagem
-        )
-
-        self.BT_voltar = ctk.CTkButton(
-            self, text='Voltar',
-            font=('', 22, 'normal'),
-            border_spacing=8,
-            command=self._home_button_event
-        )
-        
-        # self._seleciona_frame(1)
-
-
-    def set_racas_lista(self):
-        raise NotImplementedError("Please Implement this method")
-        
 
     def listagem(self, *args):
         raise NotImplementedError("Please Implement this method")
-    
 
-    def salvar_edicao(self):
-        raise NotImplementedError("Please Implement this method")
+    def set_lista_tutores(self):
+        raise NotImplementedError("Please Implement this method")   
 
-
-    def salvar_observacoes(self):
-        raise NotImplementedError("Please Implement this method")
-
-
-    def busca_dados(self, data):
+    def set_racas_lista(self):
         raise NotImplementedError("Please Implement this method")
     
-
     def adicionar_raca(self, raca):
         raise NotImplementedError("Please Implement this method")
 
-    
     def editar_raca(self):
         raise NotImplementedError("Please Implement this method")
-      
+ 
+    def salvar_edicao(self):
+        raise NotImplementedError("Please Implement this method")
+
+    def salvar_observacoes(self):
+        raise NotImplementedError("Please Implement this method")
+    
+    def salvar_novo_pet(self):
+        raise NotImplementedError("Please Implement this method")
+
+    def excluir_pet(self):
+        raise NotImplementedError("Please Implement this method")
+        
+    def busca_dados(self, data):
+        raise NotImplementedError("Please Implement this method")    
+    
+    def busca_tutor(self):
+        raise NotImplementedError("Please Implement this method")
+     
 
     def _frame_racas(self):
         if self.racas_frame is None or not self.racas_frame.winfo_exists():
             self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)
+        
+    
+    def _frame_tutores(self):
+        if self.tutores_listagem is None or not self.tutores_listagem.winfo_exists():
+            self.tutores_listagem = FrameListaTutores(self, self.lista_tutores)
+        return self.tutores_listagem.get_choice()
 
 
     def _radio_callback(self):
@@ -128,12 +172,11 @@ class App(ctk.CTk):
     
 
     def _editar(self):
+        self.BT_remover_pet.grid(row=0, column=0, padx=10, pady=(10, 0), sticky='w')
         self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
+        self.BT_cancelar_editar.configure(command=self._cancelar_edicao)
         self.BT_editar.configure(text='Salvar', command=self.salvar_edicao)
         self.BT_pesquisar.configure(state='disabled')
-
-        ###############----------------################
-        self.status_edicao = 1
         self.pet.ativa_edicao()
         self.tutor1.ativa_edicao()
         self.tutor2.ativa_edicao()        
@@ -141,22 +184,59 @@ class App(ctk.CTk):
 
     def _editar_observacao(self):
         self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
+        self.BT_cancelar_editar.configure(command=self._cancelar_observacoes)
         self.BT_editar.configure(text='Salvar', command=self.salvar_observacoes)
         self.pet.observacoes.configure(state='normal', fg_color='white')
         self.BT_pesquisar.configure(state='disabled')
-        
+    
+
+    def _adicionar_pet(self):
+        self.pet.reset()
+        self.tutor1.reset()
+        self.tutor2.reset()
+        self.pet.ativa_edicao()
+        self.tutor1.ativa_edicao()
+        self.tutor2.ativa_edicao()
+        self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
+        self.BT_cancelar_editar.configure(command=self._cancelar_adicao_pet)
+        self.BT_editar.configure(text='Salvar', state='normal', command=self.salvar_novo_pet)
+        self.BT_pesquisar.configure(state='disabled')
+        self._seleciona_frame(1)
+    
+
+    def _adicionar_tutor(sefl):
+        ...
+
 
     def _cancelar_edicao(self):
+        self.BT_remover_pet.grid_forget()
+        self.BT_cancelar_editar.grid_forget()
+        self.BT_editar.configure(text='Editar', command=self._editar)
+        self.BT_pesquisar.configure(state='normal')
+        self.pet.cancela_edicao()
+        self.tutor1.cancela_edicao()
+        self.tutor2.cancela_edicao()
+
+
+    def _cancelar_observacoes(self):
         self.BT_cancelar_editar.grid_forget()
         self.BT_editar.configure(text='Editar', command=self._editar)
         self.pet.reset_observacao()
         self.pet.observacoes.configure(state='disable', fg_color='transparent')
         self.BT_pesquisar.configure(state='normal')
+    
 
-        if self.status_edicao:
-            self.pet.cancela_edicao()
-            self.tutor1.cancela_edicao()
-            self.tutor2.cancela_edicao()
+    def _cancelar_adicao_pet(self):
+        self.pet.reset()
+        self.tutor1.reset()
+        self.tutor2.reset()
+        self.pet.cancela_edicao()
+        self.tutor1.cancela_edicao()
+        self.tutor2.cancela_edicao()
+        self.BT_cancelar_editar.grid_forget()
+        self.BT_editar.configure(text='Editar', command=self._editar)
+        self.BT_pesquisar.configure(state='normal')
+        self._seleciona_frame(2)
 
 
     def _seleciona_frame(self, frame):
@@ -166,17 +246,14 @@ class App(ctk.CTk):
             self.grid_rowconfigure((0,3), weight=0)
             self.grid_rowconfigure((1,2), weight=1)
             self.BT_racas.grid(row=0, column=1, padx=10, pady=(10, 0), sticky='e')
-            self.pet.grid(row=1, column=0, padx=10, pady=(10, 0), rowspan=2, sticky='ewsn')
-            self.tutor1.grid(row=1, column=1, padx=10, pady=(10, 0), sticky='ewsn')
+            self.pet.grid(row=1, column=0, padx=10, pady=(5, 0), rowspan=2, sticky='ewsn')
+            self.tutor1.grid(row=1, column=1, padx=10, pady=(5, 0), sticky='ewsn')
             self.tutor2.grid(row=2, column=1, padx=10, pady=(10, 0), sticky='ewsn')
             self.BT_pesquisar.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
             self.BT_editar.grid(row=3, column=1,  sticky='nse', padx=10, pady=10)
-
             if self.pet.var_id.get():
                 self.BT_editar.configure(state='normal')
                 self.pet.BT_editar_obs.configure(state='normal')
-                
-            
         else:
             self.BT_racas.grid_forget()
             self.pet.grid_forget()
@@ -197,8 +274,9 @@ class App(ctk.CTk):
             self.tabela_resultado.grid(row=2, column=0, columnspan=2, sticky='news', padx=10, pady=(0, 10))
             self.BT_voltar.grid(row=3, column=0, padx=(30, 10), pady=(30, 10))
             self.BT_buscar.grid(row=1, column=1, sticky='ne', padx=(0, 10), pady=10)
+            self.BT_add_pet.grid(row=3, column=1, padx=(30, 240), pady=(30, 20), sticky='e')
+            self.BT_add_tutor.grid(row=3, column=1, padx=(30, 40), pady=(30, 20), sticky='e')
             self.label_titulo_tabela.grid(row=1, column=1, sticky='s', padx=(0, 230), pady=(60, 0))
-            
         else:
             self.tabela_resultado.grid_forget()
             self.entrada_busca.grid_forget()
@@ -208,24 +286,23 @@ class App(ctk.CTk):
             self.BT_voltar.grid_forget()
             self.BT_buscar.grid_forget()
             self.label_titulo_tabela.grid_forget()
+            self.BT_add_pet.grid_forget()
+            self.BT_add_tutor.grid_forget()
 
         if frame == 3:
             ...
         else:
             ...
         
-
     def _home_button_event(self):
         self._seleciona_frame(1)
 
-
     def _pesquisa_button_event(self):
+        self._radio_callback()
         self._seleciona_frame(2)
-
 
     def _cadatro_button_event(self):
         self._seleciona_frame(3)
-
 
 
 if __name__ == '__main__':  

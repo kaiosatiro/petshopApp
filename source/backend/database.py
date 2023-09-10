@@ -7,6 +7,7 @@ class BD:
         self.path = ".\source\database.sqlite"
         self.conexao = self._cria_conexao()
         self._cria_tabelas()
+        self.executa_query("PRAGMA foreign_keys = TRUE")
 
 
     def _cria_conexao(self):
@@ -25,11 +26,10 @@ class BD:
         CREATE TABLE IF NOT EXISTS pet (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        raca INTEGER  NOT NULL,
+        raca TEXT NOT NULL,
         porte TEXT NOT NULL,
         sexo TEXT NOT NULL,
-        observacoes TEXT,
-        FOREIGN KEY(raca) REFERENCES raca(id)
+        observacoes TEXT
         );
         """
         self.executa_query(tabela_pet)
@@ -51,7 +51,8 @@ class BD:
         tutor_id INTEGER NOT NULL,
         pet_id INTERGER NOT NULL,
         FOREIGN KEY(tutor_id) REFERENCES tutor(id) ON DELETE CASCADE,
-        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE
+        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE,
+        UNIQUE(tutor_id, pet_id) ON CONFLICT REPLACE
         );
         """
         self.executa_query(tabela_relacao_petTutor)
@@ -65,6 +66,17 @@ class BD:
         self.executa_query(tabela_raca)
     
 
+    def executa_query_com_retorno(self, query):
+        cursor = self.conexao.cursor()
+        try:
+            cursor.execute(query)
+            result = cursor.fetchone()
+            self.conexao.commit()
+            return result
+        except Error as e:
+            return e.sqlite_errorcode, e.sqlite_errorname
+    
+
     def executa_query(self, query):
         cursor = self.conexao.cursor()
         try:
@@ -72,7 +84,7 @@ class BD:
             self.conexao.commit()
             return 1
         except Error as e:
-            return e.sqlite_errorcode
+            return e.sqlite_errorcode, e.sqlite_errorname
 
 
     def consulta_query(self, query):
@@ -93,9 +105,9 @@ if __name__ == '__main__':
         INSERT INTO
         pet (nome, raca, porte, sexo, observacoes)
         VALUES
-        ('Marley', 1, 'M', 'Macho', 'Teste'),
-        ('Cacau', 2, 'P', 'Femea', 'Teste'),
-        ('Kiki', 2, 'P', 'Femea', 'Teste');
+        ('Marley', 'Labrador', 'M', 'Macho', 'Teste'),
+        ('Cacau', 'Bombaim', 'P', 'Femea', 'Teste'),
+        ('Kiki', 'Himalaiam', 'P', 'Femea', 'Teste');
     """
 
     cria_tutores = """
@@ -105,8 +117,8 @@ if __name__ == '__main__':
     ('Chico', '11911111111', '', 'Rua Tal, vila lá 96'),
     ('Neusa', '11922222222', '', 'Rua Tal, vila lá 96'),
     ('Caio', '', '11933333333', 'Rua Tal, vila lá 96'),
-    ('TESTE', '', '11999999999', 'Rua Tal, vila lá 96'),
-    ('TESTEB', '', '1919191919', 'Rua Tal, vila lá 96');
+    ('Tata', '', '11999999999', 'Rua Tal, vila lá 96'),
+    ('Té', '', '1919191919', 'Rua Tal, vila lá 96');
     """
 
     cria_racas = """
@@ -115,7 +127,7 @@ if __name__ == '__main__':
     VALUES
     ('Labrador'),
     ('Negrinha'),
-    ('QUIMERA');
+    ('Quimera');
     """
 
     cria_relacao = """
@@ -134,7 +146,7 @@ if __name__ == '__main__':
     for i in lista:
         bd.executa_query(i)
 
-    query = "SELECT * FROM pet"
+    query = "SELECT * FROM pet;"
     q = bd.consulta_query(query)
 
     print(q)

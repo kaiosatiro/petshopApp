@@ -7,16 +7,15 @@ bd = BD()
 def consulta_pet(q):
     query = f"""
 SELECT
-    pet.id,
-    pet.nome,
-    raca.raca,
-    pet.porte,
-    pet.sexo,
-    pet.observacoes
+    id,
+    nome,
+    raca,
+    porte,
+    sexo,
+    observacoes
 FROM
  pet
-JOIN raca ON raca.id = pet.raca
-WHERE pet.nome LIKE '%{q}%';
+WHERE nome LIKE '%{q}%';
 """
     call = bd.consulta_query(query)
     return call
@@ -25,16 +24,15 @@ WHERE pet.nome LIKE '%{q}%';
 def consulta_pet_porId(q):
     query = f"""
 SELECT
-    pet.id,
-    pet.nome,
-    raca.raca,
-    pet.porte,
-    pet.sexo,
-    pet.observacoes
+    id,
+    nome,
+    raca,
+    porte,
+    sexo,
+    observacoes
 FROM
  pet
-JOIN raca ON raca.id = pet.raca
-WHERE pet.id = {q};
+WHERE id = {q};
 """
     call = bd.consulta_query(query)
     return call
@@ -52,17 +50,22 @@ def consulta_tutor_porId(q):
     return call
 
 
+def consulta_tutores():
+    query = f"SELECT id, nome FROM tutor;"
+    call = bd.consulta_query(query)
+    return call
+
+
 def consulta_relacao_pets_tutor(q):
     query = f"""
 SELECT
     pet.id,
     pet.nome,
-    raca.raca,
+    pet.raca,
     pet.porte,
     pet.sexo
 FROM
  pet
-JOIN raca ON raca.id = pet.raca
 JOIN relacao ON pet.id = relacao.pet_id
 WHERE relacao.tutor_id = {q};
 """
@@ -96,12 +99,13 @@ INSERT INTO
 VALUES
     (
     '{nome.title()}',
-    (SELECT id FROM raca WHERE raca = '{raca}'),
+    '{raca}',
     '{porte}',
     '{sexo}'
-    );
+    )
+RETURNING *;
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_com_retorno(query)
     return call
 
 
@@ -111,9 +115,9 @@ INSERT INTO
     tutor (nome, telefone1, telefone2)
 VALUES
     (
-    '{nome.title()}',
-    '{tel1}',
-    '{tel2}'
+    '{nome.title().strip()}',
+    '{tel1.strip()}',
+    '{tel2.strip()}'
     );
 """
     call = bd.executa_query(query)
@@ -143,7 +147,7 @@ def add_raca(raca:str):
 INSERT INTO
     raca (raca)
 VALUES
-    ('{raca.title()}');
+    ('{raca.title().strip()}');
 """
     call = bd.executa_query(query)
     return call
@@ -155,8 +159,8 @@ def atualiza_pet(id:int, nome:str, raca:int, porte:str, sexo:str):
 UPDATE
   pet
 SET
-    nome = '{nome}',
-    raca = (SELECT id FROM raca WHERE raca = '{raca}'),
+    nome = '{nome.title().strip()}',
+    raca = '{raca}',
     porte = '{porte}',
     sexo = '{sexo}'
 WHERE
@@ -171,7 +175,7 @@ def atualiza_observacao(id:int, data:str):
 UPDATE
   pet
 SET
-  observacoes = '{data}'
+  observacoes = '{data.strip()}'
 WHERE
   id = {id};
 """
@@ -184,9 +188,9 @@ def atualiza_tutor(id:str, nome:str, tel1:str, tel2:str):
 UPDATE
   tutor
 SET
-    nome = '{nome}',
-    telefone1 = '{tel1}',
-    telefone2 = '{tel2}'
+    nome = '{nome.title().strip()}',
+    telefone1 = '{tel1.strip()}',
+    telefone2 = '{tel2.strip()}'
 WHERE
   id = {id};
 """
@@ -199,9 +203,9 @@ def atualiza_raca(raca:str, raca_nova:str):
 UPDATE
   raca
 SET
-    raca = '{raca_nova}'
+    raca = '{raca_nova.title().strip()}'
 WHERE
-  raca = '{raca}';
+  raca = '{raca.title()}';
 """
     call = bd.executa_query(query)
     return call
@@ -225,8 +229,9 @@ def remove_relacao(id_p:int, id_t:int):
     call = bd.executa_query(query)
     return call
 
+
 def remove_raca(raca:str):
-    query = f"DELETE FROM raca WHERE raca = '{raca}';"
+    query = f"DELETE FROM raca WHERE raca = '{raca.title()}';"
     call = bd.executa_query(query)
     return call
 
