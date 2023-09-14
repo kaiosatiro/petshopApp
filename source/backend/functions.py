@@ -38,6 +38,19 @@ WHERE id = {q};
     return call
 
 
+def consulta_foto(id_f:int=0, id_p:int=0):
+    query = f"""
+SELECT
+foto
+FROM
+ foto
+WHERE id = {id_f} or pet_id = {id_p};
+"""
+    call = bd.consulta_query(query)
+    return call
+
+
+
 def consulta_tutor(q):
     query = f"SELECT * FROM tutor WHERE nome LIKE '%{q}%';"
     call = bd.consulta_query(query)
@@ -109,6 +122,21 @@ RETURNING *;
     return call
 
 
+def adiciona_foto(foto, id_p:int):
+    query = f"""
+INSERT INTO
+    foto (foto, pet_id)
+VALUES
+    (
+    {foto},
+    {id_p}
+    )
+RETURNING *;
+"""
+    call = bd.executa_query_com_retorno(query)
+    return call
+
+
 def add_tutor(nome:str, tel1:str, tel2:str):
     query = f"""
 INSERT INTO
@@ -170,6 +198,19 @@ WHERE
     return call
 
 
+def atualiza_foto(foto, id_p:int=0, id_f:int=0):
+    query = f"""
+UPDATE
+  foto
+SET
+    foto = '{foto}'
+WHERE
+  pet_id = {id_p};
+"""
+    call = bd.executa_query(query)
+    return call
+
+
 def atualiza_observacao(id:int, data:str):
     query = f"""
 UPDATE
@@ -214,6 +255,12 @@ WHERE
 # REMOCOES
 def remove_pet(id:int):
     query = f"DELETE FROM pet WHERE id = {id};"
+    call = bd.executa_query(query)
+    return call
+
+
+def remove_foto(foto, id_p:int):
+    query = f"DELETE FROM foto WHERE pet_id = {id_p};"
     call = bd.executa_query(query)
     return call
 

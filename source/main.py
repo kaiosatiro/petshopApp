@@ -14,7 +14,7 @@ class main(it.App):
         self.set_racas_lista()
         self.pet.set_racas(self.racas)
         self.set_lista_tutores()
-        self._seleciona_frame(2)
+        self._seleciona_frame(1)
     
 
     def set_lista_tutores(self):

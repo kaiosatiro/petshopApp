@@ -1,14 +1,14 @@
 import customtkinter as ctk
 from PIL import Image
 import os
+from .fotos import FrameFotos
 
 
 class FramePet(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure((1, 2), weight=1)
-        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(9, weight=1)
 
         self.racas_lista = []
         self.porte_lista = ['Pequeno', 'Médio', 'Grande']
@@ -25,23 +25,19 @@ class FramePet(ctk.CTkFrame):
         #VARIAVEIS DOS VALORES QUE RECEBEM A EDICAO
         self.var_nome_ed = ctk.StringVar()
         self.var_raca_ed = ctk.StringVar()
-        self.var_porte_ed = ctk.StringVar()  
+        self.var_porte_ed = ctk.StringVar()
         self.var_sexo_ed = ctk.StringVar()
 
         #WIDGETS DOS VALORES DO PET
         #________ IMAGEM _________
-        self.img_frame =  ctk.CTkFrame(self, fg_color='transparent')
-        self.img_frame.grid(row=0, column=0, rowspan=4, sticky='nsew', padx=10, pady=(10, 0))
-        # image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-        self.foto = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/image.png")), size=(440,300))#
-        self.foto_label = ctk.CTkLabel(self.img_frame, text="", image=self.foto)
-        self.foto_label.grid(row=0, column=0, sticky='nsew')
+        self.frame_foto = FrameFotos(self)
+        self.frame_foto.grid(row=0, column=0, rowspan=8, sticky='nsew', padx=10, pady=(10, 0))
         
         #__________ NOME _________
         self.nome = ctk.CTkLabel(self, textvariable=self.var_nome, font=('', 28, 'normal'))
-        self.nome.grid(row=0, column=2, padx=10, pady=10, sticky='ew', columnspan=3)
+        self.nome.grid(row=1, column=1, padx=10, pady=10, sticky='ew', columnspan=3)
 
-        self.label_nome = ctk.CTkLabel(self, text='Nome:', font=('', 28, 'bold')).grid(row=0, column=1)
+        self.label_nome = ctk.CTkLabel(self, text='Nome:', font=('', 22, 'bold')).grid(row=0, column=1, pady=(10, 0))
         
         self.nome_ed = ctk.CTkEntry(
             self, textvariable=self.var_nome_ed,
@@ -50,9 +46,9 @@ class FramePet(ctk.CTkFrame):
 
         #__________ RACA _________
         self.raca = ctk.CTkLabel(self, textvariable=self.var_raca, font=('', 28, 'normal'))
-        self.raca.grid(row=1, column=2, padx=10, pady=10, sticky='ew', columnspan=3)
+        self.raca.grid(row=3, column=1, padx=10, pady=10, sticky='ew', columnspan=3)
 
-        self.label_raca = ctk.CTkLabel(self, text='Raça:', font=('', 28, 'bold')).grid(row=1, column=1)
+        self.label_raca = ctk.CTkLabel(self, text='Raça:', font=('', 22, 'bold')).grid(row=2, column=1)
         
         self.raca_ed = ctk.CTkOptionMenu( 
             self, variable=self.var_raca_ed,
@@ -62,9 +58,9 @@ class FramePet(ctk.CTkFrame):
 
         # _________ SEXO __________
         self.sexo = ctk.CTkLabel(self, textvariable=self.var_sexo, font=('', 28, 'normal'))
-        self.sexo.grid(row=2, column=2, padx=10, pady=10, sticky='ew')
+        self.sexo.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
 
-        self.label_sexo = ctk.CTkLabel(self, text='Sexo:', font=('', 28, 'bold')).grid(row=2, column=1)
+        self.label_sexo = ctk.CTkLabel(self, text='Sexo:', font=('', 22, 'bold')).grid(row=4, column=1)
 
         self.sexo_ed = ctk.CTkOptionMenu(
             self, variable=self.var_sexo_ed,
@@ -75,9 +71,9 @@ class FramePet(ctk.CTkFrame):
         # _________ PORTE __________        
 
         self.porte = ctk.CTkLabel(self, textvariable=self.var_porte, font=('', 28, 'normal'))
-        self.porte.grid(row=3, column=2, padx=10, pady=10, sticky='ew')
+        self.porte.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
 
-        self.label_porte = ctk.CTkLabel(self, text='Porte:', font=('', 28, 'bold')).grid(row=3, column=1)
+        self.label_porte = ctk.CTkLabel(self, text='Porte:', font=('', 22, 'bold')).grid(row=6, column=1)
         
         self.porte_ed = ctk.CTkOptionMenu(
             self, variable=self.var_porte_ed,
@@ -87,12 +83,12 @@ class FramePet(ctk.CTkFrame):
 
         # _________ OBSERVACOES __________        
         self.label_observacoes = ctk.CTkLabel(self, text='Observações', font=('', 26, 'bold'))
-        self.label_observacoes.grid(row=4, column=0, sticky='w', padx=10, pady=(0, 5))
+        self.label_observacoes.grid(row=8, column=0, sticky='w', padx=10, pady=(0, 5)) #pack(expand=True, fill="both") ??????
         self.observacoes = ctk.CTkTextbox(
             self, corner_radius=6, font=('', 22, 'normal'),
             fg_color='transparent'
             )
-        self.observacoes.grid(row=5, column=0, columnspan=5, sticky='nsew', padx=10, pady=(0, 10))
+        self.observacoes.grid(row=9, column=0, columnspan=5, sticky='nsew', padx=10, pady=(0, 10))
         self.observacoes.insert("0.0", '...')
         self.observacoes.configure(state='disable')
 
@@ -102,7 +98,7 @@ class FramePet(ctk.CTkFrame):
             command=master._editar_observacao,
             state='disabled'
         )
-        self.BT_editar_obs.grid(row=4, column=0, sticky='w', padx=180, pady=5)
+        self.BT_editar_obs.grid(row=8, column=0, sticky='w', padx=180, pady=5)
     
 
     def reset(self):
@@ -132,6 +128,7 @@ class FramePet(ctk.CTkFrame):
     
     def get_novos(self):
         return {
+            'id': self.var_id.get(),
             'nome': self.var_nome_ed.get(),
             'raca': self.var_raca_ed.get(),
             'sexo': self.var_sexo_ed.get(),
@@ -177,10 +174,10 @@ class FramePet(ctk.CTkFrame):
         self.sexo.grid_forget()
         self.porte.grid_forget()
 
-        self.nome_ed.grid(row=0, column=2, padx=10, pady=10, sticky='ew')
-        self.raca_ed.grid(row=1, column=2, padx=10, pady=10, sticky='ew')
-        self.sexo_ed.grid(row=2, column=2, padx=10, pady=10, sticky='ew')
-        self.porte_ed.grid(row=3, column=2, padx=10, pady=10, sticky='ew')
+        self.nome_ed.grid(row=1, column=1, padx=10, pady=10, sticky='ew')
+        self.raca_ed.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
+        self.sexo_ed.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
+        self.porte_ed.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
 
         self.BT_editar_obs.configure(state='disabled')
 
@@ -191,10 +188,10 @@ class FramePet(ctk.CTkFrame):
         self.sexo_ed.grid_forget()
         self.porte_ed.grid_forget()
 
-        self.nome.grid(row=0, column=2, padx=10, pady=10, sticky='ew')
-        self.raca.grid(row=1, column=2, padx=10, pady=10, sticky='ew')
-        self.sexo.grid(row=2, column=2, padx=10, pady=10, sticky='ew')
-        self.porte.grid(row=3, column=2, padx=10, pady=10, sticky='ew')
+        self.nome.grid(row=1, column=1, padx=10, pady=10, sticky='ew')
+        self.raca.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
+        self.sexo.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
+        self.porte.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
 
         self.BT_editar_obs.configure(state='normal')
         

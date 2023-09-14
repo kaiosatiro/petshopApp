@@ -6,8 +6,8 @@ class BD:
     def __init__(self):
         self.path = ".\source\database.sqlite"
         self.conexao = self._cria_conexao()
-        self._cria_tabelas()
-        self.executa_query("PRAGMA foreign_keys = TRUE")
+        # self._cria_tabelas()
+        # self.executa_query("PRAGMA foreign_keys = TRUE")
 
 
     def _cria_conexao(self):
@@ -30,6 +30,16 @@ class BD:
         porte TEXT NOT NULL,
         sexo TEXT NOT NULL,
         observacoes TEXT
+        );
+        """
+        self.executa_query(tabela_pet)
+
+        tabela_pet = """
+        CREATE TABLE IF NOT EXISTS foto (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        foto BLOB NOT NULL,
+        pet_id INTEGER NOT NULL,
+        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE
         );
         """
         self.executa_query(tabela_pet)

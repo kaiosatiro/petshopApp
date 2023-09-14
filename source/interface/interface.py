@@ -10,7 +10,7 @@ class App(ctk.CTk):
         super().__init__()
         
         self.title('petApp')
-        self.geometry('1280x720')
+        self.geometry('1380x720')
         ctk.set_appearance_mode("light")
         
         #VARS
