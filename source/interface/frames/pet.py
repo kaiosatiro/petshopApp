@@ -114,7 +114,7 @@ class FramePet(ctk.CTkFrame):
     def set_racas(self, racas:list):
         self.racas_lista = racas
         self.raca_ed.configure(values=racas)
-
+    
 
     def get(self):
         return {
@@ -123,20 +123,26 @@ class FramePet(ctk.CTkFrame):
             'raca': self.var_raca.get(),
             'sexo': self.var_sexo.get(),
             'porte': self.var_porte.get(),
-            'observacoes': self.get_observacoes()
+            'observacoes': self.get_observacoes(),
+            'foto_id': self.frame_foto.get_id()
         }
     
     def get_novos(self):
         return {
             'id': self.var_id.get(),
+            #_____NOVOS______
             'nome': self.var_nome_ed.get(),
             'raca': self.var_raca_ed.get(),
             'sexo': self.var_sexo_ed.get(),
             'porte': self.var_porte_ed.get(),
+            'status_foto': self.frame_foto.new_foto(),
+            'foto_dir': self.frame_foto.get_dir(),
+            #_________________
+            'foto_id': self.frame_foto.get_id()
         }
     
 
-    def set(self, id:int, nome:str, raca:str, porte:str, sexo:str, observacoes:str = None):
+    def set(self, id:int, nome:str, raca:str, porte:str, sexo:str, observacoes:str=None, id_foto:int=0, foto=None):
         self.var_id.set(id)
         self.var_nome.set(nome)
         self.var_raca.set(raca)
@@ -144,6 +150,7 @@ class FramePet(ctk.CTkFrame):
         self.var_sexo.set(sexo)
         if observacoes:
             self.set_observacoes(observacoes)
+        self.frame_foto.set_all(id_foto, foto)
 
 
     def get_observacoes(self):
@@ -178,6 +185,27 @@ class FramePet(ctk.CTkFrame):
         self.raca_ed.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
         self.sexo_ed.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
         self.porte_ed.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
+        self.frame_foto.ativa_edicao()
+
+        self.BT_editar_obs.configure(state='disabled')
+    
+
+    def ativa_adicao(self):
+        self.var_nome_ed.set('')
+        self.var_raca_ed.set('')
+        self.var_porte_ed.set('')
+        self.var_sexo_ed.set('')
+
+        self.nome.grid_forget()
+        self.raca.grid_forget()
+        self.sexo.grid_forget()
+        self.porte.grid_forget()
+
+        self.nome_ed.grid(row=1, column=1, padx=10, pady=10, sticky='ew')
+        self.raca_ed.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
+        self.sexo_ed.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
+        self.porte_ed.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
+        self.frame_foto.ativa_adicao()
 
         self.BT_editar_obs.configure(state='disabled')
 
@@ -192,6 +220,22 @@ class FramePet(ctk.CTkFrame):
         self.raca.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
         self.sexo.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
         self.porte.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
+        self.frame_foto.cancela_edicao()
+
+        self.BT_editar_obs.configure(state='normal')
+    
+
+    def _cancela_adicao(self):
+        self.nome_ed.grid_forget()
+        self.raca_ed.grid_forget()
+        self.sexo_ed.grid_forget()
+        self.porte_ed.grid_forget()
+
+        self.nome.grid(row=1, column=1, padx=10, pady=10, sticky='ew')
+        self.raca.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
+        self.sexo.grid(row=5, column=1, padx=10, pady=10, sticky='ew')
+        self.porte.grid(row=7, column=1, padx=10, pady=10, sticky='ew')
+        self.frame_foto.cancela_adicao()
 
         self.BT_editar_obs.configure(state='normal')
         

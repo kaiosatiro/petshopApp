@@ -52,7 +52,7 @@ class FrameTutor(ctk.CTkFrame):
         self.label_tel2 = ctk.CTkLabel(self, text='Tel2:', font=('', 22, 'bold')).grid(
             row=2, column=2, sticky='w', padx=10, pady=5
         )
-        self.tel1 = ctk.CTkEntry(
+        self.tel2 = ctk.CTkEntry(
             self, textvariable=self._var_tel2,
             fg_color='transparent', state='readonly',
             font=('', 22, 'normal'), justify='center'

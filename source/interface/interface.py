@@ -3,6 +3,7 @@ from .frames.pet import *
 from .frames.racas import *
 from .frames.tutor import *
 from .frames.tutores_lista import *
+from .frames.tutor_painel import *
 
 
 class App(ctk.CTk):
@@ -22,6 +23,7 @@ class App(ctk.CTk):
         #FRAMES
         self.racas_frame = None
         self.tutores_listagem = None
+        self.painel_tutor = None
         self.pet = FramePet(self)
         self.tutor1 = FrameTutor(self, 'Tutor 1')   
         self.tutor2 = FrameTutor(self, 'Tutor 2')
@@ -101,7 +103,7 @@ class App(ctk.CTk):
             compound='left',
             width=150,
             height=50,
-            command=self._adicionar_tutor
+            command=self._painel_tutor
         )
 
         self.BT_remover_pet = ctk.CTkButton(
@@ -160,6 +162,11 @@ class App(ctk.CTk):
         if self.tutores_listagem is None or not self.tutores_listagem.winfo_exists():
             self.tutores_listagem = FrameListaTutores(self, self.lista_tutores)
         return self.tutores_listagem.get_choice()
+    
+
+    def _painel_tutor(self):
+        if self.painel_tutor is None or not self.painel_tutor.winfo_exists():
+            self.painel_tutor = TutorPainel(self)
 
 
     def _radio_callback(self):
@@ -194,7 +201,7 @@ class App(ctk.CTk):
         self.pet.reset()
         self.tutor1.reset()
         self.tutor2.reset()
-        self.pet.ativa_edicao()
+        self.pet.ativa_adicao()
         self.tutor1.ativa_edicao()
         self.tutor2.ativa_edicao()
         self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
@@ -230,12 +237,13 @@ class App(ctk.CTk):
         self.pet.reset()
         self.tutor1.reset()
         self.tutor2.reset()
-        self.pet.cancela_edicao()
+        self.pet._cancela_adicao()
         self.tutor1.cancela_edicao()
         self.tutor2.cancela_edicao()
         self.BT_cancelar_editar.grid_forget()
         self.BT_editar.configure(text='Editar', command=self._editar)
         self.BT_pesquisar.configure(state='normal')
+        self.BT_voltar.configure(state='disabled')
         self._seleciona_frame(2)
 
 

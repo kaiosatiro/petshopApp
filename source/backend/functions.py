@@ -38,17 +38,29 @@ WHERE id = {q};
     return call
 
 
-def consulta_foto(id_f:int=0, id_p:int=0):
+def consulta_foto_por_pet(id_p:int):
     query = f"""
 SELECT
+id,
 foto
 FROM
  foto
-WHERE id = {id_f} or pet_id = {id_p};
+WHERE pet_id = {id_p};
 """
     call = bd.consulta_query(query)
     return call
 
+
+def consulta_foto_Id(id_p:int):
+    query = f"""
+SELECT
+id
+FROM
+ foto
+WHERE pet_id = {id_p};
+"""
+    call = bd.consulta_query(query)
+    return call
 
 
 def consulta_tutor(q):
@@ -122,18 +134,16 @@ RETURNING *;
     return call
 
 
-def adiciona_foto(foto, id_p:int):
+def adiciona_foto(par:tuple):
+    '''(bytes, int)'''
     query = f"""
 INSERT INTO
     foto (foto, pet_id)
 VALUES
-    (
-    {foto},
-    {id_p}
-    )
+    (?, ?)
 RETURNING *;
 """
-    call = bd.executa_query_com_retorno(query)
+    call = bd.executa_query_com_retorno_Tupla(query, par)
     return call
 
 
@@ -198,16 +208,17 @@ WHERE
     return call
 
 
-def atualiza_foto(foto, id_p:int=0, id_f:int=0):
+def atualiza_foto(par:tuple):
+    '''(bytes, int)'''
     query = f"""
 UPDATE
   foto
 SET
-    foto = '{foto}'
+    foto = ?
 WHERE
-  pet_id = {id_p};
+  pet_id = ?;
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_Tupla(query, par)
     return call
 
 
@@ -296,4 +307,4 @@ if __name__ =='__main__':
     # print(p)
     # q = bd.consulta_query(f"SELECT COUNT(id) FROM relacao WHERE pet_id = 2;")
     # print(type(q[0][0]))
-    print(consulta_racas())
+    print(consulta_foto_Id(10))

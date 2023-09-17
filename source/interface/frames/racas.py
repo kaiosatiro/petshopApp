@@ -73,6 +73,4 @@ class FrameRacas(ctk.CTkToplevel):
         self.focus_force()
     
 
-    def _on_closing(self):
-        self.grab_release()
-        self.destroy()
+        

@@ -106,6 +106,39 @@ class BD:
             return result
         except Error as e:
             return e.sqlite_errorcode
+    
+    # COM TUPLAS - PASSANDO PARAMETRO
+
+    def executa_query_com_retorno_Tupla(self, query:str, tp:tuple):
+        cursor = self.conexao.cursor()
+        try:
+            cursor.execute(query, tp)
+            result = cursor.fetchone()
+            self.conexao.commit()
+            return result
+        except Error as e:
+            return e.sqlite_errorcode, e.sqlite_errorname
+    
+
+    def executa_query_Tupla(self, query:str, tp:tuple):
+        cursor = self.conexao.cursor()
+        try:
+            cursor.execute(query, tp)
+            self.conexao.commit()
+            return 1
+        except Error as e:
+            return e.sqlite_errorcode, e.sqlite_errorname
+
+
+    def consulta_query_Tupla(self, query:str, tp:tuple):
+        cursor = self.conexao.cursor()
+        result = None
+        try:
+            cursor.execute(query, tp)
+            result = cursor.fetchall()
+            return result
+        except Error as e:
+            return e.sqlite_errorcode
 
 
 if __name__ == '__main__':

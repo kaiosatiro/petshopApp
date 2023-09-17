@@ -1,9 +1,7 @@
-# from backend.functions import *
-# from interface.interface import *
+from io import BytesIO
 import backend.functions as fn
 import interface.interface as it
 from  CTkMessagebox import CTkMessagebox
-# PRAGMA foreign_keys = TRUE
 
 class main(it.App):
     def __init__(self):
@@ -14,7 +12,7 @@ class main(it.App):
         self.set_racas_lista()
         self.pet.set_racas(self.racas)
         self.set_lista_tutores()
-        self._seleciona_frame(1)
+        self._seleciona_frame(2)
     
 
     def set_lista_tutores(self):
@@ -66,6 +64,15 @@ class main(it.App):
     def busca_dados(self, pet_id):
         call_a = fn.consulta_pet_porId(pet_id)
         call_b = fn.consulta_relacao_tutores_pet(pet_id)
+        call_Foto = fn.consulta_foto_por_pet(pet_id)
+        
+        if call_Foto:
+            id_foto = call_Foto[0][0]
+            foto = BytesIO(call_Foto[0][1])
+        else:
+            id_foto = 0
+            foto = None
+
 
         self.pet.set(
             call_a[0][0],
@@ -73,7 +80,9 @@ class main(it.App):
             call_a[0][2],
             call_a[0][3],
             call_a[0][4],
-            call_a[0][5],                
+            call_a[0][5],
+            id_foto,
+            foto
         )
 
         self.tutor1.set(
@@ -153,7 +162,18 @@ class main(it.App):
                     )
             # ATUALIZA PET
             fn.atualiza_pet(int(pet['id']), pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
-            self._cancelar_edicao()
+            # FOTO
+            if pet['status_foto']:
+                dir_ = pet['foto_dir']
+                with open(dir_, 'rb') as file:
+                    blob = file.read()
+                    if not fn.consulta_foto_Id(pet['id']):
+                        tupla = (blob, pet['id'])
+                        fn.adiciona_foto(tupla)
+                    else:
+                        tupla = (blob, pet['foto_id'])
+                        fn.atualiza_foto(tupla)#(bytes, int)
+            self._cancelar_edicao() 
             self.busca_dados(int(pet['id']))
         
 
@@ -178,8 +198,16 @@ class main(it.App):
                 font=('', 16, 'normal')
             )
             return
-        #ADICAO DO PET E DA RELACAO COM TUTOR
+        #ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
         call = fn.add_pet(pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
+        #------
+        if pet['status_foto']:
+            dir_ = pet['foto_dir']
+            with open(dir_, 'rb') as file:
+                blob = file.read()
+                tupla = (blob, int(call[0]))
+                fn.adiciona_foto(tupla)#(bytes, int)
+        #------
         if self.tutor1.exists():
             tid = self.tutor1.get_new_id()
             fn.add_relacao(tid, call[0])
@@ -192,14 +220,13 @@ class main(it.App):
                 font=('', 16, 'normal'),
                 justify='center'
             )
-        self.busca_dados(int(call[0]))
-        self.pet.cancela_edicao()
+        self.pet._cancela_adicao()
         self.tutor1.finaliza_adicao()
         self.tutor2.finaliza_adicao()
         self.BT_cancelar_editar.grid_forget()
         self.BT_editar.configure(text='Editar', command=self._editar)
         self.BT_pesquisar.configure(state='normal')
-        self._seleciona_frame(1)
+        self.busca_dados(int(call[0]))
 
 
     def excluir_pet(self):
@@ -223,9 +250,7 @@ class main(it.App):
                 justify='center'
             )
             self._cancelar_edicao()
-            self._seleciona_frame(2)
-
-    
+            self._pesquisa_button_event()
 
 
 if __name__ == '__main__':

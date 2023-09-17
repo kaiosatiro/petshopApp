@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from CTkTable import *
 
-
+#ADICIONAR MENSAGEM NÂO ENCONTRADO 
 class FrameListaTutores(ctk.CTkToplevel):
     def __init__(self, master, lista:list=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
