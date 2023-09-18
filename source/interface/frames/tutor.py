@@ -151,9 +151,11 @@ class FrameTutor(ctk.CTkFrame):
     
     def del_fn(self):
         msg = CTkMessagebox(
-            title="Excluir Tutor?", message=f"{self._var_nome.get()} deixará de ser o Tutor do Pet {self.master.pet.var_nome.get()}?", 
+            title="Remover relação com Tutor?", justify='center',
+            message=f"{self._var_nome.get()} deixará de ser o Tutor do Pet {self.master.pet.var_nome.get()}?", 
             icon="question", font=('', 18, 'normal'),
-            option_2='Sim', option_1='Não'
+            option_1='Sim', option_2='Não',
+            option_focus=1
         )
         if msg.get() == 'Sim':
             self._var_id.set(0)

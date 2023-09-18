@@ -6,8 +6,8 @@ class BD:
     def __init__(self):
         self.path = ".\source\database.sqlite"
         self.conexao = self._cria_conexao()
-        # self._cria_tabelas()
-        # self.executa_query("PRAGMA foreign_keys = TRUE")
+        self._cria_tabelas()
+        self.executa_query("PRAGMA foreign_keys = TRUE")
 
 
     def _cria_conexao(self):
@@ -48,7 +48,7 @@ class BD:
         CREATE TABLE IF NOT EXISTS tutor (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        telefone1 TEXT NOT NULL,
+        telefone1 TEXT,
         telefone2 TEXT,
         endereco TEXT
         );
@@ -105,7 +105,7 @@ class BD:
             result = cursor.fetchall()
             return result
         except Error as e:
-            return e.sqlite_errorcode
+            return e.sqlite_errorcode, e.sqlite_errorname
     
     # COM TUPLAS - PASSANDO PARAMETRO
 

@@ -1,6 +1,5 @@
 import customtkinter as ctk
 from CTkTable import *
-from CTkMessagebox import *
 
 
 class TutorPainel(ctk.CTkToplevel):
@@ -20,19 +19,19 @@ class TutorPainel(ctk.CTkToplevel):
         self.frameT.grid(row=0, padx=10, pady=(40,0), sticky='nsew')
         self.frameT.grid_columnconfigure((1,3), weight=1)
         self.frameL.grid(row=1, column=0, padx=10, pady=(45,0), sticky='nsew')
-        # self.frameT.grid_columnconfigure((1,3), weight=1)
+        # self.frameL.grid_columnconfigure((1,3), weight=1)
         
         self._var_id = ctk.IntVar(value=0)
-        self._var_nome = ctk.StringVar(value='-')
-        self._var_tel1 = ctk.StringVar(value='-')
-        self._var_tel2 = ctk.StringVar(value='-')
-        self._var_endereco = ctk.StringVar(value='...')
+        self._var_nome = ctk.StringVar(value='')
+        self._var_tel1 = ctk.StringVar(value='')
+        self._var_tel2 = ctk.StringVar(value='')
+        self._var_endereco = ctk.StringVar(value='')
 
         self._id_ed = 0
-        self._nome_ed = '-'
-        self._tel1_ed = '-'
-        self._tel2_ed = '-'
-        self._endereco_ed = '-'
+        self._nome_ed = ''
+        self._tel1_ed = ''
+        self._tel2_ed = ''
+        self._endereco_ed = ''
 
         # ____________ NOME ______________
         self.label_nome = ctk.CTkLabel(
@@ -101,7 +100,8 @@ class TutorPainel(ctk.CTkToplevel):
             self, text='Excluir',
             font=('', 20, 'normal'),
             hover_color='red',
-            width=100
+            width=100,
+            command=self._excluir_tutor
         )
 
         self.bt_editar = ctk.CTkButton(
@@ -114,52 +114,15 @@ class TutorPainel(ctk.CTkToplevel):
         self.bt_voltar = ctk.CTkButton(
             self, text='Voltar',
             font=('', 22, 'normal'),
-            border_spacing=4, height=20
+            border_spacing=4, height=20,
+            command=self._on_closing
         )
 
         self.bt_editar.grid_configure(row=3, column=0, padx=200, pady=6, sticky='w')
         self.bt_voltar.grid_configure(row=3, column=0, padx=200, pady=6, sticky='e')
-    
 
-    def _ativa_edicao(self):
-        self.nome.configure(state='normal')
-        self.tel1.configure(state='normal')
-        self.tel2.configure(state='normal')
-        self.endereco.configure(state='normal')
-
-        self.bt_excluir.grid_configure(row=0, column=0, padx=10, pady=5, sticky='en')
-        self.bt_editar.configure(text='Salvar', command=self._salvar_edicao)
-        self.bt_voltar.configure(text='Cancelar', command=self._cancelar_edicao)
-    
-
-    def _salvar_edicao(self):
-        ...
-
-
-    def _cancelar_edicao(self):
-        self.bt_excluir.grid_forget()
-        self.bt_editar.configure(text='Editar', command=self._ativa_edicao)
-        self.bt_voltar.configure(text='Voltar', command=self._on_closing)
-
-
-
-
-
-
-    def exists(self):
-        return bool(self._var_id.get())
-
-    
-    def foi_trocado(self):
-        return not (self._var_id.get() == self._id_ed)
-    
-    
-    def get_old_id(self):
-        return self._id_ed
-
-
-    def get_new_id(self):
-        return self._var_id.get()
+        self.focus_force()
+        self.grab_set()
     
 
     def get(self):
@@ -172,95 +135,97 @@ class TutorPainel(ctk.CTkToplevel):
         }
     
 
-    def set(self, id:int, nome:str, tel1:str, tel2:str, endereco:str):
-        self._var_id.set(id)
+    def set(self, id_:int, nome:str, tel1:str, tel2:str, endereco:str):
+        self._var_id.set(id_)
         self._var_nome.set(nome)
         self._var_tel1.set(tel1)       
         self._var_tel2.set(tel2)
         self._var_endereco.set(endereco)
-
-        self.endereco.delete("0.0", "end")
-        self.endereco.insert("0.0", self._var_endereco.get())
     
 
-    def reset(self):
-        self._var_id.set(0)
-        self._var_nome.set('')
-        self._var_tel1.set('')
-        self._var_tel2.set('')
-        self._var_endereco.set('')
-        self.endereco.delete("0.0", "end")
-        self.endereco.insert("0.0", self._var_endereco.get())
+    def _ativa_edicao(self):
+        self._id_ed = self._var_id.get()
+        self._nome_ed = self._var_nome.get()
+        self._tel1_ed = self._var_tel1.get()
+        self._tel2_ed = self._var_tel2.get()
+        self._endereco_ed = self._var_endereco.get()
 
+        self.nome.configure(state='normal')
+        self.tel1.configure(state='normal')
+        self.tel2.configure(state='normal')
+        self.endereco.configure(state='normal')
 
-    def ativa_edicao(self):
-        self.BT_add.grid(row=5, column=3, pady=5, stick='w')
-        self.BT_del.grid(row=5, column=3, pady=5, sticky='e')
-        
-        if self.exists():
-            self._id_ed = self._var_id.get()
-            self._nome_ed = self._var_nome.get()
-            self._tel1_ed = self._var_tel1.get()
-            self._tel2_ed = self._var_tel2.get()
-            self._endereco_ed = self._var_endereco.get()
-            self.BT_del.configure(state='normal')
-        else:
-            self.BT_add.configure(state='normal')
+        self.bt_excluir.grid_configure(row=0, column=0, padx=10, pady=5, sticky='en')
+        self.bt_editar.configure(text='Salvar', command=self._salvar_edicao)
+        self.bt_voltar.configure(text='Cancelar', command=self._cancelar_edicao)
     
 
-    def cancela_edicao(self):
-        self.BT_add.grid_forget()
-        self.BT_del.grid_forget()
-        self.set(self._id_ed, self._nome_ed, self._tel1_ed, self._tel2_ed, self._endereco_ed)
+    def _salvar_edicao(self):
+        wait = self.master.salvar_edicao_tutor()
+        if wait:
+            self.set(wait[0], wait[1], wait[2], wait[3], wait[4])
+            self.nome.configure(state='readonly')
+            self.tel1.configure(state='readonly')
+            self.tel2.configure(state='readonly')
+            self.endereco.configure(state='readonly')
+
+            self.bt_excluir.grid_forget()
+            self.bt_editar.configure(text='Editar', command=self._ativa_edicao)
+            self.bt_voltar.configure(text='Voltar', command=self._on_closing)
+
+
+    def _cancelar_edicao(self):
+        self.nome.configure(state='readonly')
+        self.tel1.configure(state='readonly')
+        self.tel2.configure(state='readonly')
+        self.endereco.configure(state='readonly')
+
+        self._var_id.set(self._id_ed)
+        self._var_nome.set(self._nome_ed)
+        self._var_tel1.set(self._tel1_ed)
+        self._var_tel2.set(self._tel2_ed)
+        self._var_endereco.set(self._endereco_ed)
+
+        self.bt_excluir.grid_forget()
+        self.bt_editar.configure(text='Editar', command=self._ativa_edicao)
+        self.bt_voltar.configure(text='Voltar', command=self._on_closing)
     
 
-    def finaliza_adicao(self):
-        self.BT_add.grid_forget()
-        self.BT_del.grid_forget()
+    def ativa_Adicao(self):
+        self.nome.configure(state='normal')
+        self.tel1.configure(state='normal')
+        self.tel2.configure(state='normal')
+        self.endereco.configure(state='normal')
 
+        self.bt_editar.configure(text='Salvar', command=self._salvar_Adicao)
+        self.bt_voltar.configure(text='Cancelar', command=self._on_closing)
     
-    def del_fn(self):
-        msg = CTkMessagebox(
-            title="Excluir Tutor?", message=f"{self._var_nome.get()} deixará de ser o Tutor do Pet {self.master.pet.var_nome.get()}?", 
-            icon="question", font=('', 18, 'normal'),
-            option_2='Sim', option_1='Não'
-        )
-        if msg.get() == 'Sim':
-            self._var_id.set(0)
-            self._var_nome.set('-')
-            self._var_tel1.set('-')       
-            self._var_tel2.set('-')
-            self._var_endereco.set('...')
-            self.endereco.delete("0.0", "end")
-            self.endereco.insert("0.0", self._var_endereco.get())
-            self.BT_del.configure(state='disabled')
-            self.BT_add.configure(state='normal')
 
+    def _salvar_Adicao(self):
+        wait = self.master.salvar_novo_tutor()
+        if wait:
+            self.set(wait[0], wait[1], wait[2], wait[3], wait[4])
+            self.nome.configure(state='readonly')
+            self.tel1.configure(state='readonly')
+            self.tel2.configure(state='readonly')
+            self.endereco.configure(state='readonly')
 
-    def add_fn(self):
-        get_id = self.master._frame_tutores()
-        if get_id:
-            values = self.master.busca_tutor(get_id)
-            self.set(values[0], values[1], values[2], values[3], values[4])
-            self.BT_del.configure(state='normal')
-            self.BT_add.configure(state='disabled')
+            self.bt_editar.configure(text='Editar', command=self._ativa_edicao)
+            self.bt_voltar.configure(text='Voltar', command=self._on_closing)
+    
 
-
-
-
-
-        self.grab_set()
-
-
-
-
-
-
-
-
+    def _excluir_tutor(self):
+        call = self.master.excluir_tutor(self._var_id.get(), self._var_nome.get())
+        if call:
+            self._on_closing()
+    
+    
     def _on_closing(self):
+        self.master.listagem()
         self.grab_release()
         self.destroy()
+
+    
 
 
 

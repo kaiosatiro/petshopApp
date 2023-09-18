@@ -38,7 +38,7 @@ class FrameFotos(ctk.CTkFrame):
     
 
     def _get_foto(self):
-        CTkMessagebox(title="Aviso!", message="Dê preferência aos formatos Jpeg e PNG!")
+        CTkMessagebox(self.master, title="Aviso!", message="Dê preferência aos formatos Jpeg e PNG!", justify='center', option_focus=1)
         get = filedialog.askopenfile(mode ='r', filetypes =[('Imagens', ['.jpeg', '.jpg', '.png',
                                                        '.tiff', '.tif', '.bmp'])])
         if not get:

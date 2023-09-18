@@ -15,7 +15,7 @@ class FramePesquisa(ctk.CTkScrollableFrame):
         self.tabela = CTkTable(
             self, column=6, values=self.head_pet,
             hover=True, hover_color='grey', header_color='grey',
-            font=('', 22, 'normal'), command=self._filtro_nao_buscar_cabecalho,
+            font=('', 22, 'normal'), command=self._filtro_nao_buscar_cabecalho_Pet,
         )
         self.tabela.pack(expand=True, fill="both", padx=20, pady=20)
 
@@ -69,10 +69,15 @@ class FramePesquisa(ctk.CTkScrollableFrame):
         return self.tabela.get(linha, 2)
 
     
-    def _filtro_nao_buscar_cabecalho(self, *args):
+    def _filtro_nao_buscar_cabecalho_Pet(self, *args):
         if args[0]['row'] == 0:
             return
         else:
             linha = args[0]['row']
-            pet_id = int(self._get_id(linha))
-            self.master_blaster.busca_dados(pet_id)
+            id_ = int(self._get_id(linha))
+            tipo = self.master_blaster.var_tipo_busca.get()
+            if tipo == 1:
+                self.master_blaster.busca_dados(id_)
+            elif tipo == 2:
+                self.master_blaster.busca_tutor_painel(id_)
+            

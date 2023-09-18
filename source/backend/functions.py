@@ -110,6 +110,21 @@ WHERE relacao.pet_id = {q};
     return call
 
 
+def consulta_pets_com_apenas_um_tutor_por_tutor_id(id_):
+    query = f"""
+SELECT
+	pet_id,
+	COUNT(pet_id)
+FROM relacao
+WHERE pet_id IN (SELECT pet_id FROM relacao WHERE tutor_id = {id_})
+GROUP BY pet_id 
+HAVING COUNT(pet_id) < 2;
+"""
+    call = bd.consulta_query(query)
+    return call
+
+
+
 def consulta_racas():
     query = f"SELECT raca FROM raca ORDER BY raca;"
     call = bd.consulta_query(query)
@@ -147,18 +162,20 @@ RETURNING *;
     return call
 
 
-def add_tutor(nome:str, tel1:str, tel2:str):
+def add_tutor(nome:str, tel1:str, tel2:str, endereco:str):
     query = f"""
 INSERT INTO
-    tutor (nome, telefone1, telefone2)
+    tutor (nome, telefone1, telefone2, endereco)
 VALUES
     (
-    '{nome.title().strip()}',
-    '{tel1.strip()}',
-    '{tel2.strip()}'
-    );
+    ?,
+    ?,
+    ?,
+    ?)
+RETURNING *;
 """
-    call = bd.executa_query(query)
+    tupla = (nome.title(), tel1, tel2, endereco)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
@@ -235,18 +252,21 @@ WHERE
     return call
 
 
-def atualiza_tutor(id:str, nome:str, tel1:str, tel2:str):
+def atualiza_tutor(id:int, nome:str, tel1:str, tel2:str, endereco:str):
     query = f"""
 UPDATE
   tutor
 SET
-    nome = '{nome.title().strip()}',
-    telefone1 = '{tel1.strip()}',
-    telefone2 = '{tel2.strip()}'
+    nome = ?,
+    telefone1 = ?,
+    telefone2 = ?,
+    endereco = ?
 WHERE
-  id = {id};
+  id = ?
+RETURNING *;
 """
-    call = bd.executa_query(query)
+    tupla = (nome.title(), tel1, tel2, endereco, id)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 

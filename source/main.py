@@ -21,15 +21,10 @@ class main(it.App):
             self.lista_tutores.append(list(r))
     
 
-    def busca_tutor(self, i):
-        call = fn.consulta_tutor_porId(i)
-        return call[0]
-
-
     def set_racas_lista(self):
         self.racas.clear()
         for r in fn.consulta_racas():
-            self.racas.append(r[0])
+            self.racas.append(r[0]) 
         self.pet.set_racas(self.racas)
             
 
@@ -38,7 +33,12 @@ class main(it.App):
         if call == 1:
             self.set_racas_lista()
         elif call == 2067:
-            CTkMessagebox(title="Erro", message="Raça já existe", icon="cancel", font=('', 18, 'normal'))
+            CTkMessagebox(
+                self.racas_frame,
+                title="Erro", message="Raça já existe", 
+                icon="cancel", font=('', 18, 'normal'),
+                justify='center', option_focus=1
+            )
     
 
     def editar_raca(self, raca, raca_nova):
@@ -46,7 +46,12 @@ class main(it.App):
         if call == 1:
             self.set_racas_lista()
         if call == 2067:
-            CTkMessagebox(title="Erro", message="Raça já existe", icon="cancel", font=('', 18, 'normal'))
+            CTkMessagebox(
+                self.racas_frame,
+                title="Erro", message="Raça já existe", 
+                icon="cancel", font=('', 18, 'normal'),
+                justify='center', option_focus=1
+            )
             
 
     def listagem(self, *args):
@@ -59,6 +64,22 @@ class main(it.App):
             self.label_titulo_tabela.configure(text='TUTORES')
             call = fn.consulta_tutor(dado)
             self.tabela_resultado.set(2, call)
+    
+
+    def busca_tutor(self, i):
+        call = fn.consulta_tutor_porId(i)
+        return call[0]
+    
+
+    def busca_tutor_painel(self, i):
+        call = fn.consulta_tutor_porId(i)
+        id_ = call[0][0]
+        nome = call[0][1]
+        tel1 = call[0][2]
+        tel2 = call[0][3]
+        endereco = call[0][4]
+        self._painel_tutor()
+        self.painel_tutor.set(id_, nome, tel1, tel2, endereco)
     
 
     def busca_dados(self, pet_id):
@@ -111,6 +132,27 @@ class main(it.App):
             )
         
         self._seleciona_frame(1)
+    
+
+    def salvar_edicao_tutor(self):
+        get = self.painel_tutor.get()
+        id_ = get['id']
+        nome = get['nome'].strip()
+        tel1 = get['tel1'].strip()
+        tel2 = get['tel2']
+        endereco = get['endereco']
+        if not nome or not tel1:
+            CTkMessagebox(
+                self.painel_tutor,
+                title="CAMPOS EM BRANCO", icon="cancel", 
+                message="Tutor precisa de um nome e ao menos um telefone!",
+                font=('', 16, 'normal'),
+                justify='center',
+                option_focus=1
+            )
+            return None
+        call = fn.atualiza_tutor(id_, nome, tel1, tel2, endereco)
+        return call
 
 
     def salvar_observacoes(self):
@@ -125,17 +167,25 @@ class main(it.App):
         pet = self.pet.get_novos()
         if not self.tutor1.exists() and not self.tutor2.exists():
             CTkMessagebox(
+                self,
                 title="SEM TUTOR", icon="cancel", 
                 message=f"{pet['nome']} precisa de um tutor !!!",
-                font=('', 16, 'normal')
+                font=('', 16, 'normal'),
+                sound=True,
+                justify='center',
+                option_focus=1
             )
             return
         nome = pet['nome'].strip()
         if not nome:
             CTkMessagebox(
+                self,
                 title="NOME EM BRANCO", icon="cancel", 
                 message="Preencha todos os campos !",
-                font=('', 16, 'normal')
+                font=('', 16, 'normal'),
+                sound=True,
+                justify='center',
+                option_focus=1
             )
             return
         else:
@@ -175,15 +225,47 @@ class main(it.App):
                         fn.atualiza_foto(tupla)#(bytes, int)
             self._cancelar_edicao() 
             self.busca_dados(int(pet['id']))
+    
+
+    def salvar_novo_tutor(self):
+        get = self.painel_tutor.get()
+        nome = get['nome'].strip()
+        tel1 = get['tel1'].strip()
+        tel2 = get['tel2']
+        endereco = get['endereco']
+        if not nome or not tel1:
+            CTkMessagebox(
+                self.painel_tutor,
+                title="CAMPOS EM BRANCO", icon="cancel", 
+                message="Tutor precisa de um nome e ao menos um telefone!",
+                font=('', 16, 'normal'),
+                justify='center',
+                option_focus=1
+            )
+            return None
+        
+        call = fn.add_tutor(nome, tel1, tel2, endereco)
+        if call:
+            CTkMessagebox(
+                title="Aviso", icon="check", 
+                message="Tutor Criado!",
+                font=('', 16, 'normal'),
+                justify='center'
+            )
+            return call
         
 
     def salvar_novo_pet(self):
         pet = self.pet.get_novos()
         if not self.tutor1.exists() and not self.tutor2.exists():
             CTkMessagebox(
+                self,
                 title="SEM TUTOR", icon="cancel", 
                 message=f"{pet['nome']} precisa de um tutor !!!",
-                font=('', 16, 'normal')
+                font=('', 16, 'normal'),
+                justify='center',                
+                option_focus=1, 
+                sound=True  
             )
             return
         
@@ -193,9 +275,13 @@ class main(it.App):
         porte = pet['nome'].strip()
         if not nome or not raca or not sexo or not porte:
             CTkMessagebox(
+                self,
                 title="CAMPOS EM BRANCO", icon="cancel", 
                 message="Preencha todos os campos !",
-                font=('', 16, 'normal')
+                font=('', 16, 'normal'),
+                justify='center',                
+                option_focus=1,   
+                sound=True      
             )
             return
         #ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
@@ -215,10 +301,12 @@ class main(it.App):
             tid = self.tutor2.get_new_id()
             fn.add_relacao(tid, call[0])
         CTkMessagebox(
+                self,
                 title="Aviso", icon="check", 
                 message="Pet Criado!",
                 font=('', 16, 'normal'),
-                justify='center'
+                justify='center',
+                option_focus=1
             )
         self.pet._cancela_adicao()
         self.tutor1.finaliza_adicao()
@@ -232,25 +320,68 @@ class main(it.App):
     def excluir_pet(self):
         pet = self.pet.get()
         msg = CTkMessagebox(
+                self,
                 title="ATENÇÂO!", icon="warning", 
                 message=f"Excluir {pet['nome']}.\nVocê tem certeza?",
                 font=('', 16, 'normal'),
                 sound=True,
                 option_1='Sim',
                 option_2='Não, cancelar',  
-                justify='center'
+                justify='center',
+                option_focus=1                
             )
         if msg.get() == 'Sim':
             call = fn.remove_pet(int(pet['id']))
             if call:
                 CTkMessagebox(
+                self,
                 title="Aviso", icon="check", 
                 message="Pet Excluído!",
                 font=('', 16, 'normal'),
-                justify='center'
+                justify='center',
+                option_focus=1
             )
             self._cancelar_edicao()
             self._pesquisa_button_event()
+
+
+    def excluir_tutor(self, id_, nome):
+        msg = CTkMessagebox(
+            self.painel_tutor,
+            justify='center',
+            title="Excluir Tutor?", message=f"Excluir definitivamente {nome} ?", 
+            icon="question", font=('', 18, 'normal'),
+            option_1='Sim', option_2='Não',
+            option_focus=1,
+        )
+        if msg.get() == 'Sim':            
+            check = fn.consulta_pets_com_apenas_um_tutor_por_tutor_id(id_)
+            if check or check != []:
+                msg = CTkMessagebox(
+            self.painel_tutor,
+            title="Excluir PETS?",
+            width=500, justify='center',
+            message=f"Pets que não possuem outro tutor tambem serão excluídos.\nTem certeza? (Pets com outro tutor permanecem)", 
+            icon="warning", font=('', 18, 'normal'),
+            sound=True, option_focus=1,
+            option_1='Tenho', option_2='Não'
+                )
+                if msg.get() == 'Tenho':
+                    for i in check:
+                        fn.remove_pet(i[0])  
+                else:
+                    return
+            call = fn.remove_tutor(id_)
+            if call:
+                CTkMessagebox(
+                self,
+                title="Aviso", icon="check", 
+                message="Excluído!",
+                font=('', 16, 'normal'),
+                justify='center',
+                option_focus=1
+            )
+                return 1
 
 
 if __name__ == '__main__':

@@ -103,7 +103,7 @@ class App(ctk.CTk):
             compound='left',
             width=150,
             height=50,
-            command=self._painel_tutor
+            command=self._adicionar_tutor
         )
 
         self.BT_remover_pet = ctk.CTkButton(
@@ -140,16 +140,28 @@ class App(ctk.CTk):
     def salvar_observacoes(self):
         raise NotImplementedError("Please Implement this method")
     
+    def salvar_edicao_tutor(self):
+        raise NotImplementedError("Please Implement this method")
+    
     def salvar_novo_pet(self):
+        raise NotImplementedError("Please Implement this method")
+
+    def salvar_novo_tutor(self):
         raise NotImplementedError("Please Implement this method")
 
     def excluir_pet(self):
         raise NotImplementedError("Please Implement this method")
+    
+    def excluir_tutor(self):
+        raise NotImplementedError("Please Implement this method")
         
     def busca_dados(self, data):
-        raise NotImplementedError("Please Implement this method")    
-    
+        raise NotImplementedError("Please Implement this method")
+
     def busca_tutor(self):
+        raise NotImplementedError("Please Implement this method")
+    
+    def busca_tutor_painel(self):
         raise NotImplementedError("Please Implement this method")
      
 
@@ -211,8 +223,9 @@ class App(ctk.CTk):
         self._seleciona_frame(1)
     
 
-    def _adicionar_tutor(sefl):
-        ...
+    def _adicionar_tutor(self):
+        self._painel_tutor()
+        self.painel_tutor.ativa_Adicao()
 
 
     def _cancelar_edicao(self):
@@ -306,6 +319,7 @@ class App(ctk.CTk):
         self._seleciona_frame(1)
 
     def _pesquisa_button_event(self):
+        self.BT_voltar.configure(state='normal')
         self._radio_callback()
         self._seleciona_frame(2)
 
