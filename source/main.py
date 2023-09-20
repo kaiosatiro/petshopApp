@@ -12,7 +12,7 @@ class main(it.App):
         self.set_racas_lista()
         self.pet.set_racas(self.racas)
         self.set_lista_tutores()
-        self._seleciona_frame(2)
+        self._seleciona_frame(1)
     
 
     def set_lista_tutores(self):
@@ -71,15 +71,17 @@ class main(it.App):
         return call[0]
     
 
-    def busca_tutor_painel(self, i):
-        call = fn.consulta_tutor_porId(i)
-        id_ = call[0][0]
-        nome = call[0][1]
-        tel1 = call[0][2]
-        tel2 = call[0][3]
-        endereco = call[0][4]
+    def busca_tutor_painel(self, id_):
+        call_tutor = fn.consulta_tutor_porId(id_)
+        call_pets = fn.consulta_relacao_pets_tutor(id_)
         self._painel_tutor()
-        self.painel_tutor.set(id_, nome, tel1, tel2, endereco)
+        self.painel_tutor.set(
+            call_tutor[0][0], call_tutor[0][1], 
+            call_tutor[0][2], call_tutor[0][3], 
+            call_tutor[0][4]
+        )
+        if call_pets:
+            self.painel_tutor.set_tabela(call_pets)
     
 
     def busca_dados(self, pet_id):
@@ -93,7 +95,7 @@ class main(it.App):
         else:
             id_foto = 0
             foto = None
-
+ 
 
         self.pet.set(
             call_a[0][0],

@@ -4,15 +4,18 @@ from .frames.racas import *
 from .frames.tutor import *
 from .frames.tutores_lista import *
 from .frames.tutor_painel import *
+from .frames.arquivo import *
 
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
+        # self.maxsize(600, 700)
         self.title('petApp')
         self.geometry('1380x720')
         ctk.set_appearance_mode("light")
+
+        add_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/add_img.png")), size=(28,28))
         
         #VARS
         self.racas = []
@@ -24,6 +27,7 @@ class App(ctk.CTk):
         self.racas_frame = None
         self.tutores_listagem = None
         self.painel_tutor = None
+        self.arquivo = None
         self.pet = FramePet(self)
         self.tutor1 = FrameTutor(self, 'Tutor 1')   
         self.tutor2 = FrameTutor(self, 'Tutor 2')
@@ -83,7 +87,13 @@ class App(ctk.CTk):
             command=self._frame_racas
         )
 
-        add_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/add_img.png")), size=(28,28))
+        self.BT_arquivo = ctk.CTkButton(
+            self, text='Arquivo',
+            font=('', 26, 'normal'),
+            border_spacing=4,
+            command=self._arquivo
+        )
+
         self.BT_add_pet = ctk.CTkButton(
             self, text='Pet',
             font=('', 26, 'normal'),
@@ -165,6 +175,11 @@ class App(ctk.CTk):
         raise NotImplementedError("Please Implement this method")
      
 
+    def _arquivo(self):
+        if self.arquivo is None or not self.arquivo.winfo_exists():
+            self.arquivo = FrameArquivo(self)
+
+
     def _frame_racas(self):
         if self.racas_frame is None or not self.racas_frame.winfo_exists():
             self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)
@@ -179,6 +194,8 @@ class App(ctk.CTk):
     def _painel_tutor(self):
         if self.painel_tutor is None or not self.painel_tutor.winfo_exists():
             self.painel_tutor = TutorPainel(self)
+            # self.wait_window(self.painel_tutor)
+            # self.listagem()          
 
 
     def _radio_callback(self):
@@ -267,6 +284,7 @@ class App(ctk.CTk):
             self.grid_rowconfigure((0,3), weight=0)
             self.grid_rowconfigure((1,2), weight=1)
             self.BT_racas.grid(row=0, column=1, padx=10, pady=(10, 0), sticky='e')
+            self.BT_arquivo.grid(row=0, column=0, padx=10, pady=(10, 0), sticky='w')
             self.pet.grid(row=1, column=0, padx=10, pady=(5, 0), rowspan=2, sticky='ewsn')
             self.tutor1.grid(row=1, column=1, padx=10, pady=(5, 0), sticky='ewsn')
             self.tutor2.grid(row=2, column=1, padx=10, pady=(10, 0), sticky='ewsn')
@@ -277,6 +295,7 @@ class App(ctk.CTk):
                 self.pet.BT_editar_obs.configure(state='normal')
         else:
             self.BT_racas.grid_forget()
+            self.BT_arquivo.grid_forget()
             self.pet.grid_forget()
             self.tutor1.grid_forget()
             self.tutor2.grid_forget()

@@ -15,7 +15,8 @@ SELECT
     observacoes
 FROM
  pet
-WHERE nome LIKE '%{q}%';
+WHERE nome LIKE '%{q}%'
+ORDER BY nome;
 """
     call = bd.consulta_query(query)
     return call
@@ -64,7 +65,7 @@ WHERE pet_id = {id_p};
 
 
 def consulta_tutor(q):
-    query = f"SELECT * FROM tutor WHERE nome LIKE '%{q}%';"
+    query = f"SELECT * FROM tutor WHERE nome LIKE '%{q}%' ORDER BY nome;"
     call = bd.consulta_query(query)
     return call
 
@@ -81,18 +82,17 @@ def consulta_tutores():
     return call
 
 
-def consulta_relacao_pets_tutor(q):
+def consulta_relacao_pets_tutor(id_):
     query = f"""
 SELECT
     pet.id,
     pet.nome,
-    pet.raca,
-    pet.porte,
-    pet.sexo
+    pet.raca
 FROM
  pet
 JOIN relacao ON pet.id = relacao.pet_id
-WHERE relacao.tutor_id = {q};
+WHERE relacao.tutor_id = {id_}
+ORDER BY pet.nome;
 """
     call = bd.consulta_query(query)
     return call

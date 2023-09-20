@@ -82,11 +82,12 @@ class TutorPainel(ctk.CTkToplevel):
             bg_color='transparent'
             ).grid(row=1, column=0, pady=(10,0), sticky='n')
         
-        head = [['#', 'Nome', 'Raca']]
+        self.head_tabela = [['#', 'Nome', 'Raca']]
         self.tabela = CTkTable(
-            self.frameL, column=3, values=head,
+            self.frameL, column=3, values=self.head_tabela,
             hover=True, hover_color='grey', header_color='grey',
             font=('', 18, 'normal'),
+            command=self._vizualiza_pet
         )
         self.tabela.pack(expand=True, fill="both", padx=10, pady=10)
         self.tabela.edit_column(0, width=1)
@@ -141,6 +142,12 @@ class TutorPainel(ctk.CTkToplevel):
         self._var_tel1.set(tel1)       
         self._var_tel2.set(tel2)
         self._var_endereco.set(endereco)
+    
+
+    def set_tabela(self, dados):
+        for i, lista in enumerate(dados):
+            lista = list(lista)
+            self.tabela.add_row(lista, i+1)
     
 
     def _ativa_edicao(self):
@@ -218,6 +225,15 @@ class TutorPainel(ctk.CTkToplevel):
         call = self.master.excluir_tutor(self._var_id.get(), self._var_nome.get())
         if call:
             self._on_closing()
+    
+
+    def _vizualiza_pet(self, *args, **kargs):
+        linha = self.tabela.get_row(args[0]['row'])
+        id_ = linha[0]
+        self.master.busca_dados(id_)
+        self.grab_release()
+        self.master.focus_force()
+        # self.master.BT ?
     
     
     def _on_closing(self):
