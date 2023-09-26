@@ -5,10 +5,10 @@ import os
 
 class FrameRacas(ctk.CTkToplevel):
     #button.configure(command=lambda: self.command(item))
-    def __init__(self, master, racas:list, add_fn, edit_fn, *args, **kwargs):
+    def __init__(self, master, racas:list, add_fn, edit_fn, del_fn,*args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.title("Raças")
-        self.geometry("300x600")
+        self.geometry("360x600+600+200")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -20,11 +20,14 @@ class FrameRacas(ctk.CTkToplevel):
         
         self.add_fn = add_fn
         self.edit_fn = edit_fn
+        self.del_fn = del_fn
 
         self.lista = racas
         self.label_list = []
         self.button_list = []
-        self.bt_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/bt_img.png")), size=(28,28))      
+        self.del_button_list = []
+        self.bt_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/bt_img.png")), size=(28,28))
+        self.del_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/del_img.png")), size=(28,28))
 
         self.BT_add = ctk.CTkButton(
             self, text='Add',
@@ -34,25 +37,30 @@ class FrameRacas(ctk.CTkToplevel):
         )
         self.BT_add.grid(row=1, column=0, pady=(0, 10))
 
-        self._listagem()
+        self.update_list()
         self.grab_set()        
     
     
-    def _listagem(self):
-        for i, j in zip(self.label_list, self.button_list):
+    def update_list(self):
+        for i, j, k in zip(self.label_list, self.button_list, self.del_button_list):
             i.destroy()
             j.destroy()
+            k.destroy()
         
         self.label_list.clear()
         self.button_list.clear()
+        self.del_button_list.clear()
 
         for i, item in enumerate(self.lista):
             label = ctk.CTkLabel(self.frame, text=item, font=('', 20, 'normal'))
             button = ctk.CTkButton(self.frame, text='', width=28, image=self.bt_img, command=lambda item=item: self._edit_action(item))
+            del_button = ctk.CTkButton(self.frame, text='', width=28, image=self.del_img, command=lambda item=item: self._del_action(item))
             label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
             button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5, sticky="e")
+            del_button.grid(row=len(self.button_list), column=2, pady=(0, 10), padx=5, sticky="e")
             self.label_list.append(label)
             self.button_list.append(button)
+            self.del_button_list.append(del_button)
     
 
     def _add_action(self):
@@ -60,7 +68,7 @@ class FrameRacas(ctk.CTkToplevel):
         get = cx_dlg.get_input()
         if get and get != '':
             self.add_fn(get)
-            self._listagem()
+            self.update_list()
         self.focus_force()
     
 
@@ -69,7 +77,14 @@ class FrameRacas(ctk.CTkToplevel):
         get = cx_dlg.get_input()
         if get and get != '':
             self.edit_fn(raca, get)
-            self._listagem()
+            self.update_list()
+        self.focus_force()
+    
+
+    def _del_action(self, raca):
+        call = self.del_fn(raca)
+        if call:
+            self.update_list()
         self.focus_force()
     
 

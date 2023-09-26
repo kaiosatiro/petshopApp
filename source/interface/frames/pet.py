@@ -150,6 +150,8 @@ class FramePet(ctk.CTkFrame):
         self.var_sexo.set(sexo)
         if observacoes:
             self.set_observacoes(observacoes)
+        else:
+            self.set_observacoes('...')
         self.frame_foto.set_all(id_foto, foto)
 
 

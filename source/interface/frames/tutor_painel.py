@@ -7,11 +7,15 @@ class TutorPainel(ctk.CTkToplevel):
         super().__init__(master)
         self.title("Tutor Painel")
         self.geometry("700x600+500+200")
-        # self.maxsize(600, 700)
+        self.maxsize(700, 600)
+        self.minsize(700, 600)
+
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
+
+        self.frequencias = ['Diário', 'Semanal', 'Quinzenal', 'Mensal', 'Esporático']
 
         self.frameT = ctk.CTkFrame(self)
         self.frameL = ctk.CTkScrollableFrame(self)
@@ -25,12 +29,14 @@ class TutorPainel(ctk.CTkToplevel):
         self._var_nome = ctk.StringVar(value='')
         self._var_tel1 = ctk.StringVar(value='')
         self._var_tel2 = ctk.StringVar(value='')
+        self._var_freq = ctk.StringVar(value='')
         self._var_endereco = ctk.StringVar(value='')
 
         self._id_ed = 0
         self._nome_ed = ''
         self._tel1_ed = ''
         self._tel2_ed = ''
+        self._freq_ed = ''
         self._endereco_ed = ''
 
         # ____________ NOME ______________
@@ -64,6 +70,17 @@ class TutorPainel(ctk.CTkToplevel):
             font=('', 22, 'normal'),
         )
         self.tel2.grid(row=2, column=3, sticky='we')
+
+        #___________ FREQ __________
+        self.label_freq = ctk.CTkLabel(self.frameT, text='Freq:', font=('', 22, 'bold')).grid(
+            row=3, column=2, sticky='w', padx=10, pady=5
+        )
+        self.freq = ctk.CTkOptionMenu( 
+            self.frameT, variable=self._var_freq,
+            state='disabled', values=self.frequencias,
+            font=('', 22, 'normal'), dropdown_font=('', 22, 'normal'),
+        )
+        self.freq.grid(row=3, column=3, padx=10, sticky='we')
         
         #____________ ENDERECO ______________
         self.label_endereco = ctk.CTkLabel(self.frameT, text='Endereço:', font=('', 22, 'bold')).grid(
@@ -132,15 +149,17 @@ class TutorPainel(ctk.CTkToplevel):
             'nome':self._var_nome.get(),
             'tel1': self._var_tel1.get(),
             'tel2': self._var_tel2.get(),
+            'freq': self._var_freq.get(), 
             'endereco':self._var_endereco.get()
         }
     
 
-    def set(self, id_:int, nome:str, tel1:str, tel2:str, endereco:str):
+    def set(self, id_:int, nome:str, tel1:str, tel2:str, frequencia:str, endereco:str):
         self._var_id.set(id_)
         self._var_nome.set(nome)
         self._var_tel1.set(tel1)       
         self._var_tel2.set(tel2)
+        self._var_freq.set(frequencia)
         self._var_endereco.set(endereco)
     
 
@@ -155,11 +174,13 @@ class TutorPainel(ctk.CTkToplevel):
         self._nome_ed = self._var_nome.get()
         self._tel1_ed = self._var_tel1.get()
         self._tel2_ed = self._var_tel2.get()
+        self._freq_ed = self._var_freq.get()
         self._endereco_ed = self._var_endereco.get()
 
         self.nome.configure(state='normal')
         self.tel1.configure(state='normal')
         self.tel2.configure(state='normal')
+        self.freq.configure(state='normal')
         self.endereco.configure(state='normal')
 
         self.bt_excluir.grid_configure(row=0, column=0, padx=10, pady=5, sticky='en')
@@ -170,10 +191,11 @@ class TutorPainel(ctk.CTkToplevel):
     def _salvar_edicao(self):
         wait = self.master.salvar_edicao_tutor()
         if wait:
-            self.set(wait[0], wait[1], wait[2], wait[3], wait[4])
+            self.set(wait[0], wait[1], wait[2], wait[3], wait[4], wait[5])
             self.nome.configure(state='readonly')
             self.tel1.configure(state='readonly')
             self.tel2.configure(state='readonly')
+            self.freq.configure(state='disabled')
             self.endereco.configure(state='readonly')
 
             self.bt_excluir.grid_forget()
@@ -185,12 +207,14 @@ class TutorPainel(ctk.CTkToplevel):
         self.nome.configure(state='readonly')
         self.tel1.configure(state='readonly')
         self.tel2.configure(state='readonly')
+        self.freq.configure(state='disabled')
         self.endereco.configure(state='readonly')
 
         self._var_id.set(self._id_ed)
         self._var_nome.set(self._nome_ed)
         self._var_tel1.set(self._tel1_ed)
         self._var_tel2.set(self._tel2_ed)
+        self._var_freq.set(self._freq_ed)
         self._var_endereco.set(self._endereco_ed)
 
         self.bt_excluir.grid_forget()
@@ -202,6 +226,7 @@ class TutorPainel(ctk.CTkToplevel):
         self.nome.configure(state='normal')
         self.tel1.configure(state='normal')
         self.tel2.configure(state='normal')
+        self.freq.configure(state='normal')
         self.endereco.configure(state='normal')
 
         self.bt_editar.configure(text='Salvar', command=self._salvar_Adicao)
@@ -211,10 +236,11 @@ class TutorPainel(ctk.CTkToplevel):
     def _salvar_Adicao(self):
         wait = self.master.salvar_novo_tutor()
         if wait:
-            self.set(wait[0], wait[1], wait[2], wait[3], wait[4])
+            self.set(wait[0], wait[1], wait[2], wait[3], wait[4], wait[5])
             self.nome.configure(state='readonly')
             self.tel1.configure(state='readonly')
             self.tel2.configure(state='readonly')
+            self.freq.configure(state='disabled')
             self.endereco.configure(state='readonly')
 
             self.bt_editar.configure(text='Editar', command=self._ativa_edicao)
@@ -237,12 +263,9 @@ class TutorPainel(ctk.CTkToplevel):
     
     
     def _on_closing(self):
-        self.master.listagem()
+        self.master.listagem() # melhorar !
         self.grab_release()
         self.destroy()
-
-    
-
 
 
 if __name__ == '__main__':

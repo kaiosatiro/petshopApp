@@ -30,7 +30,7 @@ class FrameTutor(ctk.CTkFrame):
         
         # ____________ NOME ______________
         self.label_nome = ctk.CTkLabel(
-            self, text='Nome:', font=('', 22, 'bold'),          
+            self, text='Nome:', font=('Cairo', 22, 'bold'),          
         ).grid(row=1, column=0, padx=10, pady=5, sticky='w')
         self.nome = ctk.CTkEntry(
             self, textvariable=self._var_nome,
@@ -40,7 +40,7 @@ class FrameTutor(ctk.CTkFrame):
         self.nome.grid(row=1, column=1, columnspan=3, pady=5, sticky='we')
 
         #____________ TELEFONES ________________
-        self.label_tel1 = ctk.CTkLabel(self, text='Tel1:', font=('', 22, 'bold')).grid(
+        self.label_tel1 = ctk.CTkLabel(self, text='Tel1:', font=('Cairo', 22, 'bold')).grid(
             row=2, column=0, sticky='w', padx=10, pady=5
         )
         self.tel1 = ctk.CTkEntry(
@@ -49,7 +49,7 @@ class FrameTutor(ctk.CTkFrame):
             font=('', 22, 'normal')
         ).grid(row=2, column=1, sticky='we')
         
-        self.label_tel2 = ctk.CTkLabel(self, text='Tel2:', font=('', 22, 'bold')).grid(
+        self.label_tel2 = ctk.CTkLabel(self, text='Tel2:', font=('Cairo', 22, 'bold')).grid(
             row=2, column=2, sticky='w', padx=10, pady=5
         )
         self.tel2 = ctk.CTkEntry(
@@ -72,8 +72,8 @@ class FrameTutor(ctk.CTkFrame):
         #_____________ BOTES EDICAO _____________
         add_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/add_img.png")), size=(28,28))
         del_img = ctk.CTkImage(Image.open(os.path.realpath("source/interface/images/del_img.png")), size=(28,28))
-        self.BT_del = ctk.CTkButton(self, text='', width=28, image=del_img, command=self.del_fn, state='disabled')
-        self.BT_add = ctk.CTkButton(self, text='', width=28, image=add_img, command=self.add_fn, state='disabled')
+        self.BT_del = ctk.CTkButton(self, text='', image=del_img, command=self.del_fn, state='disabled')
+        self.BT_add = ctk.CTkButton(self, text='', image=add_img, command=self.add_fn, state='disabled')
     
 
     def exists(self):
@@ -111,6 +111,7 @@ class FrameTutor(ctk.CTkFrame):
 
         self.endereco.delete("0.0", "end")
         self.endereco.insert("0.0", self._var_endereco.get())
+        self.endereco.configure(state='disabled')
     
 
     def reset(self):
@@ -124,8 +125,8 @@ class FrameTutor(ctk.CTkFrame):
 
 
     def ativa_edicao(self):
-        self.BT_add.grid(row=5, column=3, pady=5, stick='w')
-        self.BT_del.grid(row=5, column=3, pady=5, sticky='e')
+        self.BT_add.grid(row=5, column=0, columnspan=2, pady=5, padx=5, sticky='ew')
+        self.BT_del.grid(row=5, column=2, columnspan=2, pady=5, padx=5, sticky='ew')
         
         if self.exists():
             self._id_ed = self._var_id.get()

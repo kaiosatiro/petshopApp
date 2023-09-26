@@ -164,6 +164,9 @@ class App(ctk.CTk):
     
     def excluir_tutor(self):
         raise NotImplementedError("Please Implement this method")
+
+    def excluir_raca(self, raca):
+        raise NotImplementedError("Please Implement this method")
         
     def busca_dados(self, data):
         raise NotImplementedError("Please Implement this method")
@@ -173,6 +176,12 @@ class App(ctk.CTk):
     
     def busca_tutor_painel(self):
         raise NotImplementedError("Please Implement this method")
+
+    def export_data(self, choice, path):
+        raise NotImplementedError("Please Implement this method")
+    
+    def import_data(self, choice, path):
+        raise NotImplementedError("Please Implement this method")
      
 
     def _arquivo(self):
@@ -181,11 +190,13 @@ class App(ctk.CTk):
 
 
     def _frame_racas(self):
+        self.set_racas_lista()
         if self.racas_frame is None or not self.racas_frame.winfo_exists():
-            self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca)
+            self.racas_frame = FrameRacas(self, racas=self.racas, add_fn=self.adicionar_raca, edit_fn=self.editar_raca, del_fn=self.excluir_raca)
         
-    
+
     def _frame_tutores(self):
+        self.set_lista_tutores()
         if self.tutores_listagem is None or not self.tutores_listagem.winfo_exists():
             self.tutores_listagem = FrameListaTutores(self, self.lista_tutores)
         return self.tutores_listagem.get_choice()
@@ -213,6 +224,7 @@ class App(ctk.CTk):
         self.BT_cancelar_editar.configure(command=self._cancelar_edicao)
         self.BT_editar.configure(text='Salvar', command=self.salvar_edicao)
         self.BT_pesquisar.configure(state='disabled')
+        self.pet.set_racas(self.racas)
         self.pet.ativa_edicao()
         self.tutor1.ativa_edicao()
         self.tutor2.ativa_edicao()        
@@ -231,6 +243,7 @@ class App(ctk.CTk):
         self.tutor1.reset()
         self.tutor2.reset()
         self.pet.ativa_adicao()
+        self.pet.set_racas(self.racas)
         self.tutor1.ativa_edicao()
         self.tutor2.ativa_edicao()
         self.BT_cancelar_editar.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)

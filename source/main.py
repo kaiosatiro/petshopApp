@@ -1,102 +1,116 @@
-from io import BytesIO
-import backend.functions as fn
+import backend.query_functions as qf
+import backend.arquivo_functions as arqF
+import backend.database as db
 import interface.interface as it
-from  CTkMessagebox import CTkMessagebox
+import interface.frames.messages as msg
+
 
 class main(it.App):
-    def __init__(self):
+    def __init__(self, dBinterface):
+        #DB Inicialization
+        self.dBI = dBinterface
         super().__init__()
-        # self.globalgetvar('PY_NOME_PET')
-        # self.freq_lista = ['Semanal', 'Mensal', 'Esporático']
-        
         self.set_racas_lista()
-        self.pet.set_racas(self.racas)
-        self.set_lista_tutores()
         self._seleciona_frame(1)
-    
+
 
     def set_lista_tutores(self):
         self.lista_tutores.clear()
-        for r in fn.consulta_tutores():
+        for r in qf.consulta_tutores(self.dBI):
             self.lista_tutores.append(list(r))
     
 
     def set_racas_lista(self):
         self.racas.clear()
-        for r in fn.consulta_racas():
+        for r in qf.consulta_racas(self.dBI):
             self.racas.append(r[0]) 
         self.pet.set_racas(self.racas)
             
 
     def adicionar_raca(self, raca):
-        call = fn.add_raca(raca)
-        if call == 1:
+        call = qf.add_raca(self.dBI, raca.strip())
+        if call[0] == raca.title():
             self.set_racas_lista()
-        elif call == 2067:
-            CTkMessagebox(
-                self.racas_frame,
-                title="Erro", message="Raça já existe", 
-                icon="cancel", font=('', 18, 'normal'),
-                justify='center', option_focus=1
-            )
+            self.racas_frame.update_list()            
+        elif call[0] == 'error':
+            msg.error_message_bd(self.racas_frame, call[1])
     
 
     def editar_raca(self, raca, raca_nova):
-        call = fn.atualiza_raca(raca, raca_nova)
-        if call == 1:
+        call = qf.atualiza_raca(self.dBI, raca, raca_nova.strip())
+        if call[0] == raca.title():
             self.set_racas_lista()
-        if call == 2067:
-            CTkMessagebox(
-                self.racas_frame,
-                title="Erro", message="Raça já existe", 
-                icon="cancel", font=('', 18, 'normal'),
-                justify='center', option_focus=1
-            )
+            self.racas_frame.update_list()            
+        elif call[0] == 'error':
+            msg.error_message_bd(self.racas_frame, call[1])
             
 
     def listagem(self, *args):
         dado = self.var_busca.get()
         if self.var_tipo_busca.get() == 1:
             self.label_titulo_tabela.configure(text='PETS')
-            call = fn.consulta_pet(dado)
+            call = qf.consulta_pet(self.dBI, dado)
+            if call[0] == 'error':
+                msg.error_message_bd(self, call[1])
+                return
             self.tabela_resultado.set(1, call)
         elif self.var_tipo_busca.get() == 2:
             self.label_titulo_tabela.configure(text='TUTORES')
-            call = fn.consulta_tutor(dado)
+            call = qf.consulta_tutor(self.dBI, dado)
+            if call[0] == 'error':
+                msg.error_message_bd(self, call[1])
+                return
             self.tabela_resultado.set(2, call)
     
 
     def busca_tutor(self, i):
-        call = fn.consulta_tutor_porId(i)
+        call = qf.consulta_tutor_porId(self.dBI, i)
+        if call[0] == 'error':
+            msg.error_message_bd(self, call[1])
+            return
         return call[0]
     
 
     def busca_tutor_painel(self, id_):
-        call_tutor = fn.consulta_tutor_porId(id_)
-        call_pets = fn.consulta_relacao_pets_tutor(id_)
+        call_tutor = qf.consulta_tutor_porId(self.dBI, id_)
+        call_pets = qf.consulta_relacao_pets_tutor(self.dBI, id_)
         self._painel_tutor()
+        if call_tutor[0] == 'error':
+                msg.error_message_bd(self, call_tutor[1])
+                return
         self.painel_tutor.set(
-            call_tutor[0][0], call_tutor[0][1], 
-            call_tutor[0][2], call_tutor[0][3], 
-            call_tutor[0][4]
+            call_tutor[0][0],
+            call_tutor[0][1],
+            call_tutor[0][2],
+            call_tutor[0][3], 
+            call_tutor[0][4],
+            call_tutor[0][5],
         )
         if call_pets:
+            if call_pets[0] == 'error':
+                msg.error_message_bd(self, call_pets[1])
+                return
             self.painel_tutor.set_tabela(call_pets)
     
 
     def busca_dados(self, pet_id):
-        call_a = fn.consulta_pet_porId(pet_id)
-        call_b = fn.consulta_relacao_tutores_pet(pet_id)
-        call_Foto = fn.consulta_foto_por_pet(pet_id)
+        call_a = qf.consulta_pet_porId(self.dBI, pet_id)
+        call_b = qf.consulta_relacao_tutores_pet(self.dBI, pet_id)
+        call_Foto = qf.consulta_foto_por_pet(self.dBI, pet_id)
         
         if call_Foto:
+            if call_Foto[0] == 'error':
+                msg.error_message_bd(self, call_Foto[1])
+                return
             id_foto = call_Foto[0][0]
-            foto = BytesIO(call_Foto[0][1])
+            foto = arqF.blob_to_photo(call_Foto[0][1])
         else:
             id_foto = 0
             foto = None
  
-
+        if call_a[0] == 'error':
+            msg.error_message_bd(self, call_a[1])
+            return
         self.pet.set(
             call_a[0][0],
             call_a[0][1],
@@ -108,30 +122,27 @@ class main(it.App):
             foto
         )
 
-        self.tutor1.set(
+        if call_b:
+            if call_b[0] == 'error':
+                msg.error_message_bd(self, call_b[1])
+                return
+            self.tutor1.set(
             call_b[0][0],
             call_b[0][1],
             call_b[0][2],
             call_b[0][3],
             call_b[0][4],
         )   
-
-        if len(call_b) == 2:    
-            self.tutor2.set(
-                call_b[1][0],
-                call_b[1][1],
-                call_b[1][2],
-                call_b[1][3],
-                call_b[1][4],
-            )
-        else:
-            self.tutor2.set(
-                0,
-                '-',
-                '-',
-                '-',
-                '...',
-            )
+            if len(call_b) == 2:    
+                self.tutor2.set(
+                    call_b[1][0],
+                    call_b[1][1],
+                    call_b[1][2],
+                    call_b[1][3],
+                    call_b[1][4],
+                )
+            else:
+                self.tutor2.set(0, '-', '-', '-', '...',)
         
         self._seleciona_frame(1)
     
@@ -142,91 +153,97 @@ class main(it.App):
         nome = get['nome'].strip()
         tel1 = get['tel1'].strip()
         tel2 = get['tel2']
+        freq = get['freq']
         endereco = get['endereco']
         if not nome or not tel1:
-            CTkMessagebox(
-                self.painel_tutor,
-                title="CAMPOS EM BRANCO", icon="cancel", 
-                message="Tutor precisa de um nome e ao menos um telefone!",
-                font=('', 16, 'normal'),
-                justify='center',
-                option_focus=1
-            )
+            msg.error_message(self.painel_tutor, title="CAMPOS EM BRANCO", message="Tutor precisa de um nome e ao menos um telefone!")
             return None
-        call = fn.atualiza_tutor(id_, nome, tel1, tel2, endereco)
+        call = qf.atualiza_tutor(self.dBI, id_, nome, tel1, tel2, freq, endereco)
+        if call[0] == 'error':
+            msg.error_message_bd(self, call[1])
+            return
         return call
 
 
     def salvar_observacoes(self):
         pet = self.pet.get()
-        fn.atualiza_observacao(int(pet['id']), pet['observacoes'])
-        call = fn.consulta_pet_porId(int(pet['id']))
-        self.pet.set_observacoes(call[0][5])
+        _call_ = qf.atualiza_observacao(int(pet['id']), pet['observacoes'])
+        if _call_[0] == 'error':
+            msg.error_message_bd(self, _call_[1])
+            return
+        call = qf.consulta_pet_porId(self.dBI, int(pet['id']))
+        if call[0] == 'error':
+            msg.error_message_bd(self, call[1])
+            return
+        obs = call[0][5]
+        self.pet.set_observacoes(obs)
         self._cancelar_observacoes()
 
 
     def salvar_edicao(self):
         pet = self.pet.get_novos()
         if not self.tutor1.exists() and not self.tutor2.exists():
-            CTkMessagebox(
-                self,
-                title="SEM TUTOR", icon="cancel", 
-                message=f"{pet['nome']} precisa de um tutor !!!",
-                font=('', 16, 'normal'),
-                sound=True,
-                justify='center',
-                option_focus=1
-            )
+            msg.error_message(self, title="SEM TUTOR", message=f"{pet['nome']} precisa de um tutor !!!")
             return
+        
         nome = pet['nome'].strip()
         if not nome:
-            CTkMessagebox(
-                self,
-                title="NOME EM BRANCO", icon="cancel", 
-                message="Preencha todos os campos !",
-                font=('', 16, 'normal'),
-                sound=True,
-                justify='center',
-                option_focus=1
-            )
+            msg.error_message(self, title="NOME EM BRANCO", message=f"{pet['nome']} precisa de um nome !!!")
             return
         else:
             # ATUALIZA TUTOR
             if self.tutor1.foi_trocado():
-                fn.remove_relacao(
-                    pet['id'], 
-                    self.tutor1.get_old_id()
-                )
+                _call_ = qf.remove_relacao(self.dBI, pet['id'], self.tutor1.get_old_id())
+                if _call_[0] == 'error':
+                    msg.error_message_bd(self, _call_[1])
+                    return
                 if self.tutor1.exists():
-                    fn.add_relacao(
-                        self.tutor1.get_new_id(),
-                        pet['id']
-                    )
+                    _call_ = qf.add_relacao(self.dBI, self.tutor1.get_new_id(), pet['id'])
+                    if _call_[0] == 'error':
+                        msg.error_message_bd(self, _call_[1])
+                        return
+                                        
             if self.tutor2.foi_trocado():
-                fn.remove_relacao(
-                    pet['id'], 
-                    self.tutor2.get_old_id()
-                )
+                _call_ = qf.remove_relacao(self.dBI, pet['id'], self.tutor2.get_old_id())
+                if _call_[0] == 'error':
+                    msg.error_message_bd(self, _call_[1])
+                    return
                 if self.tutor2.exists():
-                    fn.add_relacao(
-                        self.tutor2.get_new_id(),
-                        pet['id']
-                    )
+                    _call_ = qf.add_relacao(self.dBI, self.tutor2.get_new_id(), pet['id'])
+                    if _call_[0] == 'error':
+                        msg.error_message_bd(self, _call_[1])
+                        return
+                    
             # ATUALIZA PET
-            fn.atualiza_pet(int(pet['id']), pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
+            _call_ = qf.atualiza_pet(self.dBI, int(pet['id']), pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            
             # FOTO
             if pet['status_foto']:
                 dir_ = pet['foto_dir']
-                with open(dir_, 'rb') as file:
-                    blob = file.read()
-                    if not fn.consulta_foto_Id(pet['id']):
-                        tupla = (blob, pet['id'])
-                        fn.adiciona_foto(tupla)
-                    else:
-                        tupla = (blob, pet['foto_id'])
-                        fn.atualiza_foto(tupla)#(bytes, int)
+                if not qf.consulta_foto_Id(self.dBI, pet['id']):
+                    _call_ = qf.adiciona_foto(
+                        self.dBI,
+                        arqF.photo_to_blob(dir_),
+                        pet['id']
+                    )
+                    if _call_[0] == 'error':
+                        msg.error_message_bd(self, _call_[1])
+                        return
+                else:
+                    _call_ = qf.atualiza_foto(
+                        self.dBI,
+                        arqF.photo_to_blob(dir_),
+                        pet['foto_id']
+                    )
+                    if _call_[0] == 'error':
+                        msg.error_message_bd(self, _call_[1])
+                        return
+            
             self._cancelar_edicao() 
-            self.busca_dados(int(pet['id']))
+            self.busca_dados(pet['id'])
     
 
     def salvar_novo_tutor(self):
@@ -234,41 +251,25 @@ class main(it.App):
         nome = get['nome'].strip()
         tel1 = get['tel1'].strip()
         tel2 = get['tel2']
+        freq = freq['freq']
         endereco = get['endereco']
         if not nome or not tel1:
-            CTkMessagebox(
-                self.painel_tutor,
-                title="CAMPOS EM BRANCO", icon="cancel", 
-                message="Tutor precisa de um nome e ao menos um telefone!",
-                font=('', 16, 'normal'),
-                justify='center',
-                option_focus=1
-            )
+            msg.error_message(self.painel_tutor, title="CAMPOS EM BRANCO", message="Tutor precisa de um nome e ao menos um telefone!")
             return None
         
-        call = fn.add_tutor(nome, tel1, tel2, endereco)
-        if call:
-            CTkMessagebox(
-                title="Aviso", icon="check", 
-                message="Tutor Criado!",
-                font=('', 16, 'normal'),
-                justify='center'
-            )
-            return call
+        _call_ = qf.add_tutor(self.dBI, nome, tel1, tel2, freq, endereco)
+        if _call_[0] == 'error':
+            msg.error_message_bd(self, _call_[1])
+            return
+        elif _call_:
+            msg.done_message(self.painel_tutor, "Tutor Criado!")
+            return _call_
         
 
     def salvar_novo_pet(self):
         pet = self.pet.get_novos()
         if not self.tutor1.exists() and not self.tutor2.exists():
-            CTkMessagebox(
-                self,
-                title="SEM TUTOR", icon="cancel", 
-                message=f"{pet['nome']} precisa de um tutor !!!",
-                font=('', 16, 'normal'),
-                justify='center',                
-                option_focus=1, 
-                sound=True  
-            )
+            msg.error_message(self, title="SEM TUTOR", message=f"{pet['nome']} precisa de um tutor !!!")
             return
         
         nome = pet['nome'].strip()
@@ -276,117 +277,129 @@ class main(it.App):
         sexo = pet['nome'].strip()
         porte = pet['nome'].strip()
         if not nome or not raca or not sexo or not porte:
-            CTkMessagebox(
-                self,
-                title="CAMPOS EM BRANCO", icon="cancel", 
-                message="Preencha todos os campos !",
-                font=('', 16, 'normal'),
-                justify='center',                
-                option_focus=1,   
-                sound=True      
-            )
+            msg.error_message(self, title="CAMPOS EM BRANCO", message="Preencha todos os campos !")
             return
+        
         #ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
-        call = fn.add_pet(pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
-        #------
+        call_pet = qf.add_pet(self.dBI, pet['nome'], pet['raca'], pet['porte'], pet['sexo'])
+        if _call_[0] == 'error':
+            msg.error_message_bd(self, _call_[1])
+            return
+
+        #PHOTO
         if pet['status_foto']:
             dir_ = pet['foto_dir']
-            with open(dir_, 'rb') as file:
-                blob = file.read()
-                tupla = (blob, int(call[0]))
-                fn.adiciona_foto(tupla)#(bytes, int)
-        #------
-        if self.tutor1.exists():
-            tid = self.tutor1.get_new_id()
-            fn.add_relacao(tid, call[0])
-        if self.tutor2.exists():
-            tid = self.tutor2.get_new_id()
-            fn.add_relacao(tid, call[0])
-        CTkMessagebox(
-                self,
-                title="Aviso", icon="check", 
-                message="Pet Criado!",
-                font=('', 16, 'normal'),
-                justify='center',
-                option_focus=1
+            _call_ = qf.adiciona_foto(
+                self.dBI,
+                arqF.photo_to_blob(dir_),
+                int(_call_[0])
             )
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+
+        #TUTOR
+        if self.tutor1.exists():
+            tutor_id = self.tutor1.get_new_id()
+            _call_ = qf.add_relacao(self.dBI, tutor_id, call_pet[0])
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            
+        if self.tutor2.exists():
+            tutor_id = self.tutor2.get_new_id()
+            _call_ = qf.add_relacao(self.dBI, tutor_id, call_pet[0])
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+        msg.done_message(self, message="Pet Criado!")
+
+        #reset frame
         self.pet._cancela_adicao()
         self.tutor1.finaliza_adicao()
         self.tutor2.finaliza_adicao()
         self.BT_cancelar_editar.grid_forget()
         self.BT_editar.configure(text='Editar', command=self._editar)
         self.BT_pesquisar.configure(state='normal')
-        self.busca_dados(int(call[0]))
+        self.busca_dados(int(call_pet[0]))
 
 
     def excluir_pet(self):
         pet = self.pet.get()
-        msg = CTkMessagebox(
-                self,
-                title="ATENÇÂO!", icon="warning", 
-                message=f"Excluir {pet['nome']}.\nVocê tem certeza?",
-                font=('', 16, 'normal'),
-                sound=True,
-                option_1='Sim',
-                option_2='Não, cancelar',  
-                justify='center',
-                option_focus=1                
-            )
-        if msg.get() == 'Sim':
-            call = fn.remove_pet(int(pet['id']))
-            if call:
-                CTkMessagebox(
-                self,
-                title="Aviso", icon="check", 
-                message="Pet Excluído!",
-                font=('', 16, 'normal'),
-                justify='center',
-                option_focus=1
-            )
+        get = msg.delete_message(self, f"Excluir {pet['nome']}.\nVocê tem certeza?")
+        if get.get() == 'Sim':
+            _call_ = qf.remove_pet(self.dBI, int(pet['id']))
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            elif _call_ == 1:
+                msg.done_message(self, "Pet Excluído!")
             self._cancelar_edicao()
             self._pesquisa_button_event()
 
 
     def excluir_tutor(self, id_, nome):
-        msg = CTkMessagebox(
-            self.painel_tutor,
-            justify='center',
-            title="Excluir Tutor?", message=f"Excluir definitivamente {nome} ?", 
-            icon="question", font=('', 18, 'normal'),
-            option_1='Sim', option_2='Não',
-            option_focus=1,
-        )
-        if msg.get() == 'Sim':            
-            check = fn.consulta_pets_com_apenas_um_tutor_por_tutor_id(id_)
-            if check or check != []:
-                msg = CTkMessagebox(
-            self.painel_tutor,
-            title="Excluir PETS?",
-            width=500, justify='center',
-            message=f"Pets que não possuem outro tutor tambem serão excluídos.\nTem certeza? (Pets com outro tutor permanecem)", 
-            icon="warning", font=('', 18, 'normal'),
-            sound=True, option_focus=1,
-            option_1='Tenho', option_2='Não'
-                )
-                if msg.get() == 'Tenho':
-                    for i in check:
-                        fn.remove_pet(i[0])  
-                else:
-                    return
-            call = fn.remove_tutor(id_)
-            if call:
-                CTkMessagebox(
-                self,
-                title="Aviso", icon="check", 
-                message="Excluído!",
-                font=('', 16, 'normal'),
-                justify='center',
-                option_focus=1
-            )
-                return 1
+        get = msg.delete_message(self, f"Excluir definitivamente {nome}?")
+        
+        if get.get() == 'Sim':            
+            check = qf.consulta_pets_com_apenas_um_tutor_por_tutor_id(self.dBI, id_)
+        else: #não /exit
+            return
+        
+        if check or check != []:
+            get = msg.delete_many_pets(self)
+
+            if get.get() == 'Tenho':
+                for i in check:
+                    _call_ = qf.remove_pet(self.dBI, i[0])  
+                    if _call_[0] == 'error':
+                        msg.error_message_bd(self, _call_[1])
+                        return
+            else: #não /exit
+                return
+                    
+        _call_ = qf.remove_tutor(self.dBI, id_)
+        if _call_[0] == 'error':
+            msg.error_message_bd(self, _call_[1])
+            return
+        elif _call_ == 1:
+            msg.done_message(self, message="Excluído!")
+            return 1
+    
+    
+    def excluir_raca(self, raca):
+        get = msg.delete_message(self.racas_frame, f"Excluir definitivamente {raca}?")
+        if get.get() == 'Sim':
+            _call_ = qf.remove_raca(self.dBI, raca)
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            self.set_racas_lista()
+            return _call_
+    
+
+    def export_data(self, choice, path):
+        _call_ = arqF.exporta_dados(self.dBI, choice, path)
+        if _call_:
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            msg.done_message(self, message="Exportado!")
+            return 1
+    
+
+    def import_data(self, choice, path):
+        _call_ =arqF.importa_dados(self.dBI, choice, path)
+        if _call_:
+            if _call_[0] == 'error':
+                msg.error_message_bd(self, _call_[1])
+                return
+            msg.done_message(self, message="Importado!")
+            return 1
 
 
 if __name__ == '__main__':
-    app = main()
+    dB = db.BD()
+    app = main(dB)
     app.mainloop()
 

@@ -1,10 +1,19 @@
 import sqlite3
 from sqlite3 import Error
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    encoding='utf-8',
+    filename='.\source\log_db.log', 
+    # filemode='w',
+    format='%(asctime)s - %(message)s',
+    datefmt='%d-%b-%Y %H:%M:%S'
+)
 
 class BD:
     def __init__(self):
-        self.path = ".\source\database.sqlite"
+        self.path = ".\source\database.sqlite" #Relative path
         self.conexao = self._cria_conexao()
         self._cria_tabelas()
         self.executa_query("PRAGMA foreign_keys = TRUE")
@@ -14,10 +23,9 @@ class BD:
         conexao = None
         try:
             conexao = sqlite3.connect(self.path)
-            print("Conexão SQLite DB com Sucesso")
+            logging.info("Conexão incial com sucesso")
         except Error as e:
-            print(f"Um erro '{e}' ocorreu")
-
+            logging.exception("Erro ao criar conexão inicial")
         return conexao
 
 
@@ -50,9 +58,11 @@ class BD:
         nome TEXT NOT NULL,
         telefone1 TEXT,
         telefone2 TEXT,
+        frequencia TEXT,
         endereco TEXT
         );
         """
+
         self.executa_query(tabela_tutor)
 
         tabela_relacao_petTutor = """
@@ -76,27 +86,7 @@ class BD:
         self.executa_query(tabela_raca)
     
 
-    def executa_query_com_retorno(self, query):
-        cursor = self.conexao.cursor()
-        try:
-            cursor.execute(query)
-            result = cursor.fetchone()
-            self.conexao.commit()
-            return result
-        except Error as e:
-            return e.sqlite_errorcode, e.sqlite_errorname
-    
-
-    def executa_query(self, query):
-        cursor = self.conexao.cursor()
-        try:
-            cursor.execute(query)
-            self.conexao.commit()
-            return 1
-        except Error as e:
-            return e.sqlite_errorcode, e.sqlite_errorname
-
-
+    #FOR QUERIES WITH ONE PARAMETER, BASICALY ALL THE SEARCHES
     def consulta_query(self, query):
         cursor = self.conexao.cursor()
         result = None
@@ -104,11 +94,12 @@ class BD:
             cursor.execute(query)
             result = cursor.fetchall()
             return result
-        except Error as e:
-            return e.sqlite_errorcode, e.sqlite_errorname
+        except Error as error:
+            logging.error(f"{error} - {query}")
+            return 'error' , error
     
-    # COM TUPLAS - PASSANDO PARAMETRO
 
+    #EXECUTIONS WITH PARAMETERS PASSED IN A TUPLE
     def executa_query_com_retorno_Tupla(self, query:str, tp:tuple):
         cursor = self.conexao.cursor()
         try:
@@ -116,83 +107,31 @@ class BD:
             result = cursor.fetchone()
             self.conexao.commit()
             return result
-        except Error as e:
-            return e.sqlite_errorcode, e.sqlite_errorname
-    
+        except Error as error:
+            logging.error(f"{error} - {query} - {tp}")
+            return 'error', error
+        
 
-    def executa_query_Tupla(self, query:str, tp:tuple):
+    #FOR THE IMPORT DATA
+    def executa_muitos_Tupla(self, query:str, tp:tuple):
         cursor = self.conexao.cursor()
         try:
-            cursor.execute(query, tp)
+            cursor.executemany(query, tp)
             self.conexao.commit()
-            return 1
-        except Error as e:
-            return e.sqlite_errorcode, e.sqlite_errorname
+            return 1, 'Done!'
+        except Error as error:
+            logging.error(f"{error} - {query}")
+            return 'error', error
 
 
-    def consulta_query_Tupla(self, query:str, tp:tuple):
+    #FOR DELETIONS
+    def executa_query(self, query):
         cursor = self.conexao.cursor()
-        result = None
         try:
-            cursor.execute(query, tp)
-            result = cursor.fetchall()
-            return result
-        except Error as e:
-            return e.sqlite_errorcode
+            cursor.execute(query)
+            self.conexao.commit()
+            return 1, 'Done!'
+        except Error as error:
+            logging.error(f"{error} - {query}")
+            return 'error' , error
 
-
-if __name__ == '__main__':
-    bd = BD()
-   
-    cria_pets = """
-        INSERT INTO
-        pet (nome, raca, porte, sexo, observacoes)
-        VALUES
-        ('Marley', 'Labrador', 'M', 'Macho', 'Teste'),
-        ('Cacau', 'Bombaim', 'P', 'Femea', 'Teste'),
-        ('Kiki', 'Himalaiam', 'P', 'Femea', 'Teste');
-    """
-
-    cria_tutores = """
-    INSERT INTO
-    tutor (nome, telefone1, telefone2, endereco)
-    VALUES
-    ('Chico', '11911111111', '', 'Rua Tal, vila lá 96'),
-    ('Neusa', '11922222222', '', 'Rua Tal, vila lá 96'),
-    ('Caio', '', '11933333333', 'Rua Tal, vila lá 96'),
-    ('Tata', '', '11999999999', 'Rua Tal, vila lá 96'),
-    ('Té', '', '1919191919', 'Rua Tal, vila lá 96');
-    """
-
-    cria_racas = """
-    INSERT INTO
-    raca (raca)
-    VALUES
-    ('Labrador'),
-    ('Negrinha'),
-    ('Quimera');
-    """
-
-    cria_relacao = """
-    INSERT INTO
-    relacao (tutor_id, pet_id)
-    VALUES
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (2, 3),
-    (3, 2),
-    (2, 1);
-    """
-    lista = [cria_pets, cria_tutores, cria_racas, cria_relacao]
-
-    for i in lista:
-        bd.executa_query(i)
-
-    query = "SELECT * FROM pet;"
-    q = bd.consulta_query(query)
-
-    print(q)
-    
-
-    

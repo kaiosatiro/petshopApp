@@ -7,6 +7,9 @@ class FrameListaTutores(ctk.CTkToplevel):
         super().__init__(master, *args, **kwargs)
         self.title("Tutores")
         self.geometry("600x400")
+        self.maxsize(600, 400)
+        self.minsize(600, 400)
+        
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1) 
         self.protocol("WM_DELETE_WINDOW", self._on_closing)

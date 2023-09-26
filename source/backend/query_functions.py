@@ -1,10 +1,5 @@
-from .database import *
-
-
-bd = BD()
-
 # ____________________ CONSULTAS ___________________
-def consulta_pet(q):
+def consulta_pet(bd, q:str):
     query = f"""
 SELECT
     id,
@@ -22,7 +17,7 @@ ORDER BY nome;
     return call
 
 
-def consulta_pet_porId(q):
+def consulta_pet_porId(bd, q:int):
     query = f"""
 SELECT
     id,
@@ -39,7 +34,7 @@ WHERE id = {q};
     return call
 
 
-def consulta_foto_por_pet(id_p:int):
+def consulta_foto_por_pet(bd, id_p:int):
     query = f"""
 SELECT
 id,
@@ -52,7 +47,7 @@ WHERE pet_id = {id_p};
     return call
 
 
-def consulta_foto_Id(id_p:int):
+def consulta_foto_Id(bd, id_p:int):
     query = f"""
 SELECT
 id
@@ -64,25 +59,38 @@ WHERE pet_id = {id_p};
     return call
 
 
-def consulta_tutor(q):
-    query = f"SELECT * FROM tutor WHERE nome LIKE '%{q}%' ORDER BY nome;"
+def consulta_tutor(bd, q):
+    query = f"""
+SELECT
+    id,
+    nome,
+    telefone1,
+    telefone2,
+    frequencia
+FROM 
+    tutor 
+WHERE 
+    nome 
+LIKE '%{q}%' 
+ORDER BY nome;
+"""
     call = bd.consulta_query(query)
     return call
 
 
-def consulta_tutor_porId(q):
+def consulta_tutor_porId(bd, q:int):
     query = f"SELECT * FROM tutor WHERE id = {q};"
     call = bd.consulta_query(query)
     return call
 
 
-def consulta_tutores():
+def consulta_tutores(bd):
     query = f"SELECT id, nome FROM tutor;"
     call = bd.consulta_query(query)
     return call
 
 
-def consulta_relacao_pets_tutor(id_):
+def consulta_relacao_pets_tutor(bd, id_:int):
     query = f"""
 SELECT
     pet.id,
@@ -98,7 +106,7 @@ ORDER BY pet.nome;
     return call
 
 
-def consulta_relacao_tutores_pet(q):
+def consulta_relacao_tutores_pet(bd, q:int):
     query = f"""
 SELECT tutor.*
 FROM
@@ -110,7 +118,15 @@ WHERE relacao.pet_id = {q};
     return call
 
 
-def consulta_pets_com_apenas_um_tutor_por_tutor_id(id_):
+# def consulta_contagem_tutor_por_pet(bd, pet_id):
+#     check = f"SELECT COUNT(id) FROM relacao WHERE pet_id = {pet_id};"
+#     if bd.consulta_query(check)[0][0] > 2:
+#         return 0, "Pet já tem dois tutores"
+#     else:
+#         return 1
+
+
+def consulta_pets_com_apenas_um_tutor_por_tutor_id(bd, id_:int):
     query = f"""
 SELECT
 	pet_id,
@@ -124,33 +140,29 @@ HAVING COUNT(pet_id) < 2;
     return call
 
 
-
-def consulta_racas():
+def consulta_racas(bd):
     query = f"SELECT raca FROM raca ORDER BY raca;"
     call = bd.consulta_query(query)
     return call
 
 
 # ________________________ ADICOES ____________________________
-def add_pet(nome:str, raca:str, porte:str, sexo:str):
+def add_pet(bd, nome:str, raca:str, porte:str, sexo:str):
+    tupla = (nome.title(), raca, porte, sexo)
     query = f"""
 INSERT INTO
     pet (nome, raca, porte, sexo)
 VALUES
-    (
-    '{nome.title()}',
-    '{raca}',
-    '{porte}',
-    '{sexo}'
-    )
+    (?, ?, ?, ?)
 RETURNING *;
 """
-    call = bd.executa_query_com_retorno(query)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def adiciona_foto(par:tuple):
+def adiciona_foto(bd, blob:bytes, pet_id:int):
     '''(bytes, int)'''
+    tupla = (blob, pet_id)
     query = f"""
 INSERT INTO
     foto (foto, pet_id)
@@ -158,101 +170,101 @@ VALUES
     (?, ?)
 RETURNING *;
 """
-    call = bd.executa_query_com_retorno_Tupla(query, par)
-    return call
-
-
-def add_tutor(nome:str, tel1:str, tel2:str, endereco:str):
-    query = f"""
-INSERT INTO
-    tutor (nome, telefone1, telefone2, endereco)
-VALUES
-    (
-    ?,
-    ?,
-    ?,
-    ?)
-RETURNING *;
-"""
-    tupla = (nome.title(), tel1, tel2, endereco)
     call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def add_relacao(t_id:int, p_id:int):
-    check = f"SELECT COUNT(id) FROM relacao WHERE pet_id = {p_id};"
-    if bd.consulta_query(check)[0][0] > 2:
-        return 0, "Pet já tem dois tutores"
-    else:            
-        query = f"""
-    INSERT INTO
-        relacao (tutor_id, pet_id)
-    VALUES
-        (
-        {t_id},
-        {p_id}
-        );
-    """
-        call = bd.executa_query(query)
-        return call
+def add_tutor(bd, nome:str, tel1:str, tel2:str, frequencia:str, endereco:str):
+    tupla = (nome.title(), tel1, tel2, frequencia, endereco)
+    query = f"""
+INSERT INTO
+    tutor (nome, telefone1, telefone2, frequencia, endereco)
+VALUES
+    (?, ?, ?, ?, ?)
+RETURNING *;
+"""
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
+    return call
 
 
-def add_raca(raca:str):
+def add_relacao(bd, t_id:int, p_id:int):
+    tupla = (t_id, p_id)      
+    query = f"""
+INSERT INTO
+    relacao (tutor_id, pet_id)
+VALUES
+    (?, ?)
+RETURNING *;
+"""
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
+    return call
+
+
+def add_raca(bd, raca:str):
+    tupla = (raca.title(),)
     query = f"""
 INSERT INTO
     raca (raca)
 VALUES
-    ('{raca.title().strip()}');
+    (?)
+RETURNING raca;
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
 # UPDATES
-def atualiza_pet(id:int, nome:str, raca:int, porte:str, sexo:str):
+def atualiza_pet(bd, id_:int, nome:str, raca:int, porte:str, sexo:str):
+    tupla = (nome.title(), raca, porte, sexo, id_)
     query = f"""
 UPDATE
   pet
 SET
-    nome = '{nome.title().strip()}',
-    raca = '{raca}',
-    porte = '{porte}',
-    sexo = '{sexo}'
+    nome = ?,
+    raca = ?,
+    porte = ?,
+    sexo = ?
 WHERE
-  id = {id};
+  id = ?
+RETURNING *
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def atualiza_foto(par:tuple):
+def atualiza_foto(bd, blob:bytes, pet_id:int):
     '''(bytes, int)'''
+    tupla = (blob, pet_id)
     query = f"""
 UPDATE
   foto
 SET
     foto = ?
 WHERE
-  pet_id = ?;
+  pet_id = ?
+RETURNING id;
 """
-    call = bd.executa_query_Tupla(query, par)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def atualiza_observacao(id:int, data:str):
+def atualiza_observacao(bd, id_:int, data:str):
+    tupla = (data, id_)
     query = f"""
 UPDATE
   pet
 SET
-  observacoes = '{data.strip()}'
+  observacoes = ?
 WHERE
-  id = {id};
+  id = ?
+RETURNING observacoes;
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def atualiza_tutor(id:int, nome:str, tel1:str, tel2:str, endereco:str):
+def atualiza_tutor(bd, id:int, nome:str, tel1:str, tel2:str, frequencia:str, endereco:str):
+    tupla = (nome.title(), tel1, tel2, frequencia, endereco, id)
     query = f"""
 UPDATE
   tutor
@@ -260,71 +272,57 @@ SET
     nome = ?,
     telefone1 = ?,
     telefone2 = ?,
+    frequencia = ?,
     endereco = ?
 WHERE
   id = ?
 RETURNING *;
 """
-    tupla = (nome.title(), tel1, tel2, endereco, id)
     call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
-def atualiza_raca(raca:str, raca_nova:str):
+def atualiza_raca(bd, raca:str, raca_nova:str):
+    tupla = (raca_nova.title(), raca)
     query = f"""
 UPDATE
   raca
 SET
-    raca = '{raca_nova.title().strip()}'
+    raca = ?
 WHERE
-  raca = '{raca.title()}';
+  raca = ?
+RETURNING raca;
 """
-    call = bd.executa_query(query)
+    call = bd.executa_query_com_retorno_Tupla(query, tupla)
     return call
 
 
 # REMOCOES
-def remove_pet(id:int):
+def remove_pet(bd, id:int):
     query = f"DELETE FROM pet WHERE id = {id};"
     call = bd.executa_query(query)
     return call
 
 
-def remove_foto(foto, id_p:int):
+def remove_foto(bd, id_p:int):
     query = f"DELETE FROM foto WHERE pet_id = {id_p};"
     call = bd.executa_query(query)
     return call
 
 
-def remove_tutor(id:int):
+def remove_tutor(bd, id:int):
     query = f"DELETE FROM tutor WHERE id = {id};"
     call = bd.executa_query(query)
     return call
 
 
-def remove_relacao(id_p:int, id_t:int):
+def remove_relacao(bd, id_p:int, id_t:int):
     query = f"DELETE FROM relacao WHERE pet_id = {id_p} and tutor_id = {id_t};"
     call = bd.executa_query(query)
     return call
 
 
-def remove_raca(raca:str):
-    query = f"DELETE FROM raca WHERE raca = '{raca.title()}';"
+def remove_raca(bd, raca:str):
+    query = f"DELETE FROM raca WHERE raca = '{raca}';"
     call = bd.executa_query(query)
     return call
-
-
-if __name__ =='__main__':
-    # p = consulta_pet('mar')
-    # print(p)
-    # t = consulta_tutor('io')
-    # print(t)
-    # r = consulta_raca('a')
-    # print(r)
-    # add = add_pet('urso', 'Labrador', 'M', 'Macho')
-    # print(add)
-    # p = consulta_pet('urs')
-    # print(p)
-    # q = bd.consulta_query(f"SELECT COUNT(id) FROM relacao WHERE pet_id = 2;")
-    # print(type(q[0][0]))
-    print(consulta_foto_Id(10))
