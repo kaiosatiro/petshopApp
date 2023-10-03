@@ -10,7 +10,9 @@ class Main(App):
         self.dBI = dBinterface
         super().__init__()
         self.set_breed_list()
-        self._section_select(1)
+        self.set_recent_lists()
+        self._section_select(2)
+        self._recents()
 
 
     def set_tutor_list(self):
@@ -24,7 +26,52 @@ class Main(App):
         for r in sf.query_breeds(self.dBI):
             self._breeds.append(r[0]) 
         self._pet_display.set_breeds(self._breeds)
-            
+    
+
+    def set_recent_lists(self):
+        for pet in sf.query_recent_pet(self.dBI):
+            self._recent_pets.append(list(pet))
+        for tutor in sf.query_recent_tutor(self.dBI):
+            self._recent_tutors.append(list(tutor))
+    
+
+    def update_recent_lists(self):
+        sf.remove_recent_pet(self.dBI)
+        sf.remove_recent_tutor(self.dBI)
+      
+        ids_p = []
+        for pet in self._recent_pets:
+            ids_p.append(pet[0])
+        sf.insert_recent_pet(self.dBI, ids_p)
+        ids_t = []
+        for tutor in self._recent_tutors:
+            ids_t.append(tutor[0])
+        sf.insert_recent_tutor(self.dBI, ids_t)
+    
+
+    def add_recent(self, wich, tuple_):
+        if wich == 1:
+            for index, pet in enumerate(self._recent_pets):
+                if int(tuple_[0]) == int(pet[0]):
+                    self._recent_pets.pop(index)
+                    break
+            pet = list(tuple_)
+            pet.pop(-1) # REMOVES OBS            
+            self._recent_pets.insert(0, pet)
+            if len(self._recent_pets) > 10:
+                self._recent_pets.pop(-1)
+
+        elif wich == 2:
+            for index, tutor in enumerate(self._recent_tutors):
+                if int(tuple_[0]) == int(tutor[0]):
+                    self._recent_tutors.pop(index)
+                    break
+            tutor = list(tuple_)
+            tutor.pop(-1) # REMOVES ADDRESS
+            self._recent_tutors.insert(0, tutor)
+            if len(self._recent_tutors) > 10:
+                self._recent_tutors.pop(-1)
+
 
     def add_breed(self, breed):
         call = sf.add_breed(self.dBI, breed.strip())
@@ -97,6 +144,7 @@ class Main(App):
                 msg.error_message_bd(self, call_pets[1])
                 return
             self._tutor_panel.set_table(call_pets)
+        self.add_recent(2, call_tutor[0])
     
 
     def show_pet(self, pet_id):
@@ -152,10 +200,9 @@ class Main(App):
         else:
             self._tutorA_display.set(0, '-', '-', '-', '...',)
             self._tutorB_display.set(0, '-', '-', '-', '...',)
-            
-        
+
         self._section_select(1)
-    
+        self.add_recent(1, call_pet[0])
 
     def save_edit_tutor(self):
         get = self._tutor_panel.get()

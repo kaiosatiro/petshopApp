@@ -146,6 +146,38 @@ def query_breeds(bd):
     return call
 
 
+def query_recent_pet(bd):
+    query = f"""
+SELECT
+    id,
+    nome,
+    raca,
+    porte,
+    sexo,
+    observacoes
+FROM
+    pet
+WHERE id in (SELECT id from recent_pet);
+"""
+    call = bd.query(query)
+    return call
+
+
+def query_recent_tutor(bd):
+    query = f"""
+SELECT
+    id,
+    nome,
+    telefone1,
+    telefone2,
+    frequencia
+FROM
+    tutor
+WHERE id in (SELECT id from recent_tutor);
+"""
+    call = bd.query(query)
+    return call
+
 # ________________________ ADICOES ____________________________
 def add_pet(bd, nome:str, raca:str, porte:str, sexo:str):
     tupla = (nome.title(), raca, porte, sexo)
@@ -211,6 +243,28 @@ RETURNING raca;
 """
     call = bd.execute_tuple_returning(query, tupla)
     return call
+
+
+def insert_recent_pet(bd, id_list:list):
+    list_ = [(id_,) for id_ in id_list]
+    query = f"""
+INSERT INTO
+    recent_pet (id)
+VALUES
+    (?);
+"""
+    call = bd.execute_many_tuple(query, list_)
+
+
+def insert_recent_tutor(bd, id_list:list):
+    list_ = [(id_,) for id_ in id_list]
+    query = f"""
+INSERT INTO
+    recent_tutor (id)
+VALUES
+    (?);
+"""
+    call = bd.execute_many_tuple(query, list_)
 
 
 # UPDATES
@@ -324,5 +378,17 @@ def remove_relation(bd, id_p:int, id_t:int):
 
 def remove_breed(bd, raca:str):
     query = f"DELETE FROM raca WHERE raca = '{raca}';"
+    call = bd.execute(query)
+    return call
+
+
+def remove_recent_pet(bd):
+    query = f"DELETE FROM recent_pet;"
+    call = bd.execute(query)
+    return call
+
+
+def remove_recent_tutor(bd):
+    query = f"DELETE FROM recent_tutor;"
     call = bd.execute(query)
     return call

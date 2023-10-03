@@ -29,59 +29,75 @@ class DB:
 
     def _create_tables(self):
         pet = """
-        CREATE TABLE IF NOT EXISTS pet (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        raca TEXT NOT NULL,
-        porte TEXT NOT NULL,
-        sexo TEXT NOT NULL,
-        observacoes TEXT
-        );
+            CREATE TABLE IF NOT EXISTS pet (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            raca TEXT NOT NULL,
+            porte TEXT NOT NULL,
+            sexo TEXT NOT NULL,
+            observacoes TEXT
+            );
         """
         self.execute(pet)
 
         photo = """
-        CREATE TABLE IF NOT EXISTS foto (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        foto BLOB NOT NULL,
-        pet_id INTEGER NOT NULL,
-        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE
-        );
-        """
+            CREATE TABLE IF NOT EXISTS foto (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            foto BLOB NOT NULL,
+            pet_id INTEGER NOT NULL,
+            FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE
+            );
+            """
         self.execute(photo)
 
         tutor = """
-        CREATE TABLE IF NOT EXISTS tutor (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        telefone1 TEXT,
-        telefone2 TEXT,
-        frequencia TEXT,
-        endereco TEXT
-        );
-        """
+            CREATE TABLE IF NOT EXISTS tutor (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            telefone1 TEXT,
+            telefone2 TEXT,
+            frequencia TEXT,
+            endereco TEXT
+            );
+            """
 
         self.execute(tutor)
 
         pet_tutor_relation = """
-        CREATE TABLE IF NOT EXISTS relacao (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tutor_id INTEGER NOT NULL,
-        pet_id INTERGER NOT NULL,
-        FOREIGN KEY(tutor_id) REFERENCES tutor(id) ON DELETE CASCADE,
-        FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE,
-        UNIQUE(tutor_id, pet_id) ON CONFLICT REPLACE
-        );
-        """
+            CREATE TABLE IF NOT EXISTS relacao (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tutor_id INTEGER NOT NULL,
+            pet_id INTERGER NOT NULL,
+            FOREIGN KEY(tutor_id) REFERENCES tutor(id) ON DELETE CASCADE,
+            FOREIGN KEY(pet_id) REFERENCES pet(id) ON DELETE CASCADE,
+            UNIQUE(tutor_id, pet_id) ON CONFLICT REPLACE
+            );
+            """
         self.execute(pet_tutor_relation)
 
         breed = """
-        CREATE TABLE IF NOT EXISTS raca (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        raca TEXT NOT NULL UNIQUE
-        );
-        """
+            CREATE TABLE IF NOT EXISTS raca (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            raca TEXT NOT NULL UNIQUE
+            );
+            """
         self.execute(breed)
+
+        recent_pet = """
+            CREATE TABLE IF NOT EXISTS recent_pet (
+            id INTEGER UNIQUE,
+            FOREIGN KEY(id) REFERENCES pet(id) ON DELETE CASCADE
+            );
+            """
+        self.execute(recent_pet)
+
+        recent_tutor = """
+            CREATE TABLE IF NOT EXISTS recent_tutor (
+            id INTEGER UNIQUE,
+            FOREIGN KEY(id) REFERENCES tutor(id) ON DELETE CASCADE
+            );
+            """
+        self.execute(recent_tutor)
     
     #FOR QUERIES WITH ONE PARAMETER, BASICALY ALL THE SEARCHES
     def query(self, query):

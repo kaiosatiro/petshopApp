@@ -19,7 +19,7 @@ class SearchTable(ctk.CTkScrollableFrame):
         )
         self._table.pack(expand=True, fill="both", padx=20, pady=20)
 
-    def set(self, head, data):
+    def set(self, head, data:list):
         for i in range(1, self._table.rows+1):
             self._table.delete_row(i)
         if head == 1:

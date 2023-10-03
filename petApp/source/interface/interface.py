@@ -12,15 +12,17 @@ class App(ctk.CTk):
         self.title('petApp')
         self.geometry('1380x720')
         ctk.set_appearance_mode("light")
-        # self.configure(fg_color='#FFFFEF')
         ctk.set_default_color_theme("petApp/resources/theme.json")
         ctk.FontManager.load_font("petApp/resources/Torus Notched Regular.ttf")
+        self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         self._add_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/add_img.png")), size=(28,28))
 
         #VARS
         self._breeds = []
         self._tutors = [] #For quick search
+        self._recent_pets = []
+        self._recent_tutors = []
         self._search_data = ctk.StringVar(value='')
         self._search_type = ctk.IntVar(value=1)
 
@@ -137,7 +139,7 @@ class App(ctk.CTk):
         )
         
         self._radio_callback()
-        self._section_select(1)
+        # self._section_select(1)
 
     def search(self, *args):
         raise NotImplementedError("Please Implement this method")
@@ -146,6 +148,15 @@ class App(ctk.CTk):
         raise NotImplementedError("Please Implement this method")   
 
     def set_breed_list(self):
+        raise NotImplementedError("Please Implement this method")
+    
+    def set_recent_lists(sself):
+        raise NotImplementedError("Please Implement this method")
+
+    def update_recent_lists(self):
+        raise NotImplementedError("Please Implement this method")
+    
+    def add_recent(self, wich, tuple_):
         raise NotImplementedError("Please Implement this method")
     
     def add_breed(self, breed):
@@ -225,7 +236,13 @@ class App(ctk.CTk):
         elif self._search_type.get() == 2:
             self._table_title_label.configure(text='TUTORES')
         self._search_table._change_header(self._search_type.get())
-        self.search()
+        self._recents()
+    
+    def _recents(self):
+        if self._search_type.get() == 1:
+            self._search_table.set(1, self._recent_pets)
+        elif self._search_type.get() == 2:
+            self._search_table.set(2, self._recent_tutors)
     
     def _grid_pet_edition(self):
         self._bt_delete_pet.grid(row=0, column=0, padx=10, pady=(10, 0), sticky='w')
@@ -323,6 +340,7 @@ class App(ctk.CTk):
             self._bt_radio_pet.grid(row=1, column=0, sticky='n', padx=(30, 10), pady=10)
             self._bt_radio_tutor.grid(row=1, column=1, sticky='nw', padx=(0, 10), pady=10)
             self._search_table.grid(row=2, column=0, columnspan=2, sticky='news', padx=10, pady=(0, 10))
+            self._bt_back.configure(state='normal')
             self._bt_back.grid(row=3, column=0, padx=(30, 10), pady=(30, 10))
             self._bt_search.grid(row=1, column=1, sticky='ne', padx=30)
             self._bt_add_pet.grid(row=3, column=1, padx=(30, 240), pady=(30, 20), sticky='e')
@@ -349,9 +367,15 @@ class App(ctk.CTk):
         self._section_select(1)
 
     def _search_display_button_event(self):
-        self._bt_back.configure(state='normal')
-        self._radio_callback()
+        if self._search_data.get().strip():
+            self.search()
+        # self._bt_back.configure(state='normal')
         self._section_select(2)
+    
+    def _on_closing(self):
+        self.update_recent_lists()
+        self.grab_release()
+        self.destroy()
 
 
 if __name__ == '__main__':  

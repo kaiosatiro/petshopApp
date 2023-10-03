@@ -261,6 +261,5 @@ class TutorPanel(ctk.CTkToplevel):
         self.master.focus_force()
         
     def _on_closing(self):
-        self.master.search()
         self.grab_release()
         self.destroy()
