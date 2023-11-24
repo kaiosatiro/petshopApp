@@ -8,20 +8,23 @@ class DB:
         logging.basicConfig(
             level=logging.INFO,
             encoding='utf-8',
-            filename=os.path.join(path_, "log_db.log"),
+            filename=os.path.join(path_, "database/log_db.log"),
             format='%(levelname)s - %(asctime)s - %(name)s - %(message)s',
             datefmt='%d-%b-%Y %H:%M:%S'
             )
         
-        self.path = os.path.join(path_, "database.sqlite")
-        self.connection = self._create_connection()
-        self._create_tables()
+        self._path = os.path.join(path_, "database/database.sqlite")
+        print(self._path)
+        self.new_db = not os.path.isfile(self._path)
+        self._connection = self._create_connection()
+        if self.new_db:
+            self._create_tables()
         self.execute("PRAGMA foreign_keys = TRUE")
 
     def _create_connection(self):
         conn = None
         try:
-            conn = sqlite3.connect(self.path)
+            conn = sqlite3.connect(self._path)
             logging.info("Conexão incial com sucesso")
         except sqlite3.Error as e:
             logging.exception("Erro ao criar conexão inicial")
@@ -101,7 +104,7 @@ class DB:
     
     #FOR QUERIES WITH ONE PARAMETER, BASICALY ALL THE SEARCHES
     def query(self, query):
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         result = None
         try:
             cursor.execute(query)
@@ -113,11 +116,11 @@ class DB:
     
     #EXECUTIONS WITH PARAMETERS PASSED IN A TUPLE
     def execute_tuple_returning(self, query:str, tp:tuple):
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         try:
             cursor.execute(query, tp)
             result = cursor.fetchone()
-            self.connection.commit()
+            self._connection.commit()
             return result
         except sqlite3.Error as error:
             logging.error(f"{error} - {query} - {tp}")
@@ -125,10 +128,10 @@ class DB:
         
     #FOR THE IMPORT DATA
     def execute_many_tuple(self, query:str, tp:tuple):
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         try:
             cursor.executemany(query, tp)
-            self.connection.commit()
+            self._connection.commit()
             return 1, 'Done!'
         except sqlite3.Error as error:
             logging.error(f"{error} - {query}")
@@ -136,10 +139,10 @@ class DB:
 
     #FOR DELETIONS
     def execute(self, query):
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         try:
             cursor.execute(query)
-            self.connection.commit()
+            self._connection.commit()
             return 1, 'Done!'
         except sqlite3.Error as error:
             logging.error(f"{error} - {query}")

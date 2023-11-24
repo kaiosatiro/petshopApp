@@ -11,8 +11,8 @@ class Main(App):
         super().__init__()
         self.set_breed_list()
         self.set_recent_lists()
-        self._section_select(2)
         self._recents()
+        self._section_select(2)      
 
 
     def set_tutor_list(self):
@@ -49,14 +49,17 @@ class Main(App):
         sf.insert_recent_tutor(self.dBI, ids_t)
     
 
-    def add_recent(self, wich, tuple_):
+    def refresh_recent(self, wich:int, tuple_, delete:bool):
         if wich == 1:
             for index, pet in enumerate(self._recent_pets):
                 if int(tuple_[0]) == int(pet[0]):
                     self._recent_pets.pop(index)
+                    if delete:
+                        return
                     break
             pet = list(tuple_)
-            pet.pop(-1) # REMOVES OBS            
+            if len(pet) > 5:
+                pet.pop(-1) # REMOVES OBS            
             self._recent_pets.insert(0, pet)
             if len(self._recent_pets) > 10:
                 self._recent_pets.pop(-1)
@@ -65,13 +68,16 @@ class Main(App):
             for index, tutor in enumerate(self._recent_tutors):
                 if int(tuple_[0]) == int(tutor[0]):
                     self._recent_tutors.pop(index)
+                    if delete:
+                        return
                     break
             tutor = list(tuple_)
-            tutor.pop(-1) # REMOVES ADDRESS
+            if len(tutor) > 5:
+                tutor.pop(-1) # REMOVES ADDRESS
             self._recent_tutors.insert(0, tutor)
             if len(self._recent_tutors) > 10:
                 self._recent_tutors.pop(-1)
-
+    
 
     def add_breed(self, breed):
         call = sf.add_breed(self.dBI, breed.strip())
@@ -128,10 +134,11 @@ class Main(App):
         call_pets = sf.query_pet_tutor_relation(self.dBI, id_)
         
         self._call_tutor_panel()
-        if call_tutor[0] == 'error':
+        if call_tutor:
+            if call_tutor[0] == 'error':
                 msg.error_message_bd(self, call_tutor[1])
                 return
-        self._tutor_panel.set(
+            self._tutor_panel.set(
             call_tutor[0][0],
             call_tutor[0][1],
             call_tutor[0][2],
@@ -139,12 +146,18 @@ class Main(App):
             call_tutor[0][4],
             call_tutor[0][5],
         )
+        else:
+            msg.error_message(self, 'Não encontrado', 'Tutor não encontrado')
+            self._tutor_panel.destroy()
+            return
+        
+        
         if call_pets:
             if call_pets[0] == 'error':
                 msg.error_message_bd(self, call_pets[1])
                 return
             self._tutor_panel.set_table(call_pets)
-        self.add_recent(2, call_tutor[0])
+        self.refresh_recent(2, call_tutor[0], False)
     
 
     def show_pet(self, pet_id):
@@ -161,20 +174,23 @@ class Main(App):
         else:
             photo_id = 0
             foto = None
- 
-        if call_pet[0] == 'error':
-            msg.error_message_bd(self, call_pet[1])
+        if call_pet:
+            if call_pet[0] == 'error':
+                msg.error_message_bd(self, call_pet[1])
+                return
+            self._pet_display.set(
+                call_pet[0][0],
+                call_pet[0][1],
+                call_pet[0][2],
+                call_pet[0][3],
+                call_pet[0][4],
+                call_pet[0][5],
+                photo_id,
+                foto
+                )
+        else:
+            msg.error_message(self, 'Não encontrado', 'Pet não encontrado')
             return
-        self._pet_display.set(
-            call_pet[0][0],
-            call_pet[0][1],
-            call_pet[0][2],
-            call_pet[0][3],
-            call_pet[0][4],
-            call_pet[0][5],
-            photo_id,
-            foto
-        )
 
         if call_tutor:
             if call_tutor[0] == 'error':
@@ -202,7 +218,7 @@ class Main(App):
             self._tutorB_display.set(0, '-', '-', '-', '...',)
 
         self._section_select(1)
-        self.add_recent(1, call_pet[0])
+        self.refresh_recent(1, call_pet[0], False)
 
     def save_edit_tutor(self):
         get = self._tutor_panel.get()
@@ -314,13 +330,14 @@ class Main(App):
             msg.error_message(self._tutor_panel, title="CAMPOS EM BRANCO", message="Tutor precisa de um nome e ao menos um telefone!")
             return None
         
-        _call_ = sf.add_tutor(self.dBI, name, tel1, tel2, freq, address)
-        if _call_[0] == 'error':
-            msg.error_message_bd(self, _call_[1])
+        call_tutor = sf.add_tutor(self.dBI, name, tel1, tel2, freq, address)
+        if call_tutor[0] == 'error':
+            msg.error_message_bd(self, call_tutor[1])
             return
-        elif _call_:
+        else:
             msg.done_message(self._tutor_panel, "Tutor Criado!")
-            return _call_
+            self.refresh_recent(2, call_tutor, False)
+            return call_tutor
         
 
     def save_new_pet(self):
@@ -337,13 +354,13 @@ class Main(App):
             msg.error_message(self, title="CAMPOS EM BRANCO", message="Preencha todos os campos !")
             return
         
-        #ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
+        # ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
         call_pet = sf.add_pet(self.dBI, pet['name'], pet['breed'], pet['size'], pet['sex'])
         if call_pet[0] == 'error':
             msg.error_message_bd(self, _call_[1])
             return
 
-        #PHOTO
+        # PHOTO
         if pet['status_foto']:
             dir_ = pet['photo_dir']
             _call_ = sf.add_photo(
@@ -355,23 +372,24 @@ class Main(App):
                 msg.error_message_bd(self, _call_[1])
                 return
 
-        #TUTOR
+        # TUTOR
         if self._tutorA_display.exists():
             tutor_id = self._tutorA_display.get_new_id()
             _call_ = sf.add_relation(self.dBI, tutor_id, call_pet[0])
             if _call_[0] == 'error':
                 msg.error_message_bd(self, _call_[1])
                 return
-            
         if self._tutorB_display.exists():
             tutor_id = self._tutorB_display.get_new_id()
             _call_ = sf.add_relation(self.dBI, tutor_id, call_pet[0])
             if _call_[0] == 'error':
                 msg.error_message_bd(self, _call_[1])
                 return
+            
         msg.done_message(self, message="Pet Criado!")
+        self.refresh_recent(1, call_pet, False)
 
-        #reset frame
+        # reset frame
         self._pet_display.grid_cancel_adition()
         self._tutorA_display.grid_adition_complete()
         self._tutorB_display.grid_adition_complete()
@@ -389,17 +407,19 @@ class Main(App):
             if _call_[0] == 'error':
                 msg.error_message_bd(self, _call_[1])
                 return
-            elif _call_ == 1:
+            elif _call_[0] == 1:
                 msg.done_message(self, "Pet Excluído!")
+                pet = (pet['id'], pet['name'], pet['breed'], pet['sex'], pet['size'])
+                self.refresh_recent(1, pet, True)
             self._grid_cancel_edit()
             self._search_display_button_event()
 
 
-    def delete_tutor(self, id_, name):
-        get = msg.delete_message(self, f"Excluir definitivamente {name}?")
+    def delete_tutor(self, tutor):
+        get = msg.delete_message(self, f"Excluir definitivamente {tutor['name']}?")
         
         if get.get() == 'Sim':            
-            check = sf.query_pets_with_only_one_tutor(self.dBI, id_)
+            check = sf.query_pets_with_only_one_tutor(self.dBI, tutor['id'])
         else: #não /exit
             return
         
@@ -415,12 +435,15 @@ class Main(App):
             else: #não /exit
                 return
                     
-        _call_ = sf.remove_tutor(self.dBI, id_)
+        _call_ = sf.remove_tutor(self.dBI, tutor['id'])
         if _call_[0] == 'error':
             msg.error_message_bd(self, _call_[1])
             return
         elif _call_[0] == 1:
             msg.done_message(self, message="Excluído!")
+            tutor = (tutor['id'], tutor['name'], tutor['tel1'], tutor['tel2'], tutor['freq'])
+            self.refresh_recent(2, tutor, True)
+            self._search_display_button_event()
             return 1
 
 
@@ -450,6 +473,9 @@ class Main(App):
         if _call_:
             if _call_[0] == 'error':
                 msg.error_message_bd(self, _call_[1])
+                return
+            elif _call_[0] == 'errorS':
+                msg.error_message(self, 'Erro ao importar!',_call_[1])
                 return
             msg.done_message(self, message="Importado!")
             return 1

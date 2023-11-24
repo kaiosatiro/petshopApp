@@ -248,8 +248,7 @@ class TutorPanel(ctk.CTkToplevel):
             self._bt_back.configure(text='Voltar', command=self._on_closing)
     
     def _call_delete_tutor(self):
-        call = self.master.delete_tutor(self._id.get(), self._name_tutor.get())
-        print(call)
+        call = self.master.delete_tutor(self.get())
         if call:
             self._on_closing()
     

@@ -11,12 +11,17 @@ class App(ctk.CTk):
         super().__init__()
         self.title('petApp')
         self.geometry('1380x720')
+        self.wm_iconbitmap('petApp/images/ico.ico')
         ctk.set_appearance_mode("light")
-        ctk.set_default_color_theme("petApp/resources/theme.json")
-        ctk.FontManager.load_font("petApp/resources/Torus Notched Regular.ttf")
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
+        ctk.FontManager.load_font("petApp/resoorus Notched Regular.ttf")
 
-        self._add_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/add_img.png")), size=(28,28))
+        try:    
+            ctk.set_default_color_theme("petApp/resources/theme.json")
+        except FileNotFoundError:
+            pass
+
+        self._add_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/add_img.png")), size=(28,28))
 
         #VARS
         self._breeds = []
@@ -156,7 +161,7 @@ class App(ctk.CTk):
     def update_recent_lists(self):
         raise NotImplementedError("Please Implement this method")
     
-    def add_recent(self, wich, tuple_):
+    def refresh_recent(self, wich, tuple_):
         raise NotImplementedError("Please Implement this method")
     
     def add_breed(self, breed):

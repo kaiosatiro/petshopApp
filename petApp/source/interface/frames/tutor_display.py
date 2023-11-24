@@ -75,8 +75,8 @@ class TutorDisplay(ctk.CTkFrame):
         self._address_display.configure('disabled')
 
         #_____________ BOTES EDICAO _____________
-        self._add_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/add_img.png")), size=(28,28))
-        self._del_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/del_img.png")), size=(28,28))
+        self._add_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/add_img.png")), size=(28,28))
+        self._del_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/del_img.png")), size=(28,28))
             
         self._bt_add = ctk.CTkButton(
             self, text='', image=self._add_img,

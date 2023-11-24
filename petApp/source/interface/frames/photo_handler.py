@@ -9,7 +9,7 @@ from CTkMessagebox import CTkMessagebox
 class PhotoHandler(ctk.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        self._std_img = Image.open(os.path.realpath("petApp/images/w_plus.png"))
+        self._std_img = Image.open(os.path.relpath("petApp/images/w_plus.png"))
 
         self._id = 0
         self._new_photo_status = 0
@@ -39,8 +39,8 @@ class PhotoHandler(ctk.CTkFrame):
             filetypes =[('Imagens', ['.jpeg', '.jpg', '.png', '.tiff', '.tif', '.bmp'])])
         if not get:
             return None
-        self._img = Image.open(os.path.realpath(get.name))
-        self._photo_path = os.path.realpath(get.name)
+        self._img = Image.open(os.path.relpath(get.name))
+        self._photo_path = os.path.relpath(get.name)
         self._set_foto()
         self._new_photo_status = 1
 

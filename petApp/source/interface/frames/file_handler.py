@@ -16,7 +16,7 @@ class FileHandler(ctk.CTkToplevel):
         
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
-        self._lupe_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/lupe.png")), size=(28,28))
+        self._lupe_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/lupe.png")), size=(28,28))
 
         self._radio_choice = ctk.IntVar(value=1)
         self._entry_path = ctk.StringVar(value='')

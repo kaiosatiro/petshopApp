@@ -117,7 +117,7 @@ class PetDisplay(ctk.CTkFrame):
         self._obs_display.insert("0.0", '...')
         self._obs_display.configure(state='disabled')
         
-        self._bt_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/bt_img.png")), size=(28,28))
+        self._bt_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/bt_img.png")), size=(28,28))
 
         self._bt_edit_obs = ctk.CTkButton(
             self, text='', width=28, image=self._bt_img,

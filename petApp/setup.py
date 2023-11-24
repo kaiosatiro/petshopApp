@@ -1,35 +1,24 @@
 from setuptools import setup
 
 setup(
-    name="realpython-reader",
+    name="petShopApp",
     version="1.0.0",
-    description="Read the latest Real Python tutorials",
-    long_description=README,
-    long_description_content_type="text/markdown",
-    url="https://github.com/realpython/reader",
-    author="Real Python",
-    author_email="info@realpython.com",
+    description="",
+    # long_description=README,
+    # long_description_content_type="text/markdown",
+    url="https://github.com/kaiosatiro/petshopApp",
+    author="Caio Satiro",
+    author_email="kaiosatiro@gmail.com",
     license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
-    packages=["reader"],
+    packages=["source"],
     include_package_data=True,
     install_requires=[
-        "feedparser", "html2text", "importlib_resources", "typing"
+        "CTkMessagebox", "CTkTable", "customtkinter", "Pillow", "pandas"
     ],
-    entry_points={"console_scripts": ["realpython=reader.__main__:main"]},
+    entry_points={"console_scripts": ["petshopapp=petApp.app:main"]},
 )
-
-setup(
-    name = 'extension',
-    version = '0.1.0',
-    packages = ['extension'],
-    entry_points = {
-        'console_scripts': [
-            'ext = extension.__main__:main'
-        ]
-    })

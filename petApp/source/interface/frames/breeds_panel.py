@@ -24,8 +24,8 @@ class BreedsPanel(ctk.CTkToplevel):
         self._button_list = []
         self._del_button_list = []
 
-        self._bt_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/bt_img.png")), size=(28,28))
-        self._del_img = ctk.CTkImage(Image.open(os.path.realpath("petApp/images/del_img.png")), size=(28,28))
+        self._bt_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/bt_img.png")), size=(28,28))
+        self._del_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/del_img.png")), size=(28,28))
 
         self._bt_add = ctk.CTkButton(
             self, text='Add',

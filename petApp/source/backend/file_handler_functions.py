@@ -84,15 +84,16 @@ def import_data(bd, choice, path):
     path =  os.path.realpath(path)
     ext = os.path.splitext(path)[1]
     
-    try: 
+    try:
         if ext == ".csv":
             df = pd.read_csv(path, delimiter=';', on_bad_lines='skip', encoding_errors='replace')
         else:
             df = pd.read_excel(path)
-    except:
-        return 'error', 'Erro na importação do arquivo!'
-    finally:
-        data_to_insert = df.to_records(index=False).tolist()
+    except Exception as ex:
+        print(ex)
+        return 'errorS', 'Erro na importação do arquivo!'
+
+    data_to_insert = df.to_records(index=False).tolist()
 
     if choice == 'Pets':
         query = "INSERT INTO pet (nome, raca, porte, sexo, observacoes) VALUES (?,?,?,?,?);"
