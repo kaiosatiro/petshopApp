@@ -13,6 +13,7 @@
   <li> Search pet or tutor by name or partial name </li>
   <li> Update and delete any information </li>
   <li> Import and export data with .csv or excel formats </li>
+  <li> Data Base log errors </li>
 </ul>
 
 <h3 align="center"> I made this so my friend Lucca could manage his customers so, it is in Portuguese. On further updates, we can add new features like language option and service control </h3>
