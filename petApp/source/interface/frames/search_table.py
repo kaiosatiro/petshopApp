@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from CTkTable import *
 
+#This is the main result table. The table needs to be remade on every result. 
+# I need to rethink this on a case for heavy loads of data.
 
 class SearchTable(ctk.CTkScrollableFrame):
     def __init__(self, master):

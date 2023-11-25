@@ -11,6 +11,7 @@
   <li> Register tutor name, phone, address, and relative frequency
   <li> Register new breeds </li>
   <li> Search pet or tutor by name or partial name </li>
+  <li> Show recent showed pet and tutors </li>
   <li> Update and delete any information </li>
   <li> Import and export data with .csv or excel formats </li>
   <li> Data Base log errors </li>

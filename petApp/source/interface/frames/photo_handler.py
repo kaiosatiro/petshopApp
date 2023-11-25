@@ -5,6 +5,11 @@ from PIL import Image
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 
+#This is the display object that handles the pet photo. 
+#It can add, change, and display the photo in fullscreen.
+# It verifies on an edition behavior if the photo was changed or not,
+# so there would be no need to interact with the DB when there is no change.
+
 
 class PhotoHandler(ctk.CTkFrame):
     def __init__(self, master, *args, **kwargs):

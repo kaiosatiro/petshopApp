@@ -6,6 +6,7 @@ import customtkinter as ctk
 
 from .photo_handler import PhotoHandler
 
+#Are all the behaviors of the pet display. As shown, edition, create new. Data handling is made on the main file.
 
 class PetDisplay(ctk.CTkFrame):
     def __init__(self, master):

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from CTkMessagebox import CTkMessagebox
 
+#This file contains functions that display messages. Some are customizable and some are for specific use.
 
 def error_message_bd(frame, error:tuple):
     # try: except AttributeError

@@ -1,7 +1,10 @@
 import customtkinter as ctk
 from CTkTable import *
 
-#ADICIONAR MENSAGEM NÂO ENCONTRADO 
+# This is the TOP display that used the TUTOR data cached on the interface instance, 
+# to seek a tutor to be added on a relation with the pet. 
+# This is during the pet addition or edition.
+
 class TutorSearchPanel(ctk.CTkToplevel):
     def __init__(self, master, lista:list=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)

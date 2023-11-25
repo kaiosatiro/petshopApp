@@ -6,6 +6,10 @@ import os
 from source.backend import DB
 from source.main import Main
 
+# This is the starting point for the APP.
+# It has a function with a script to be used in case it is a new DB, that adds some demo data.
+# In the end there is the main function.
+
 
 def example_data(db):
     pets = (
@@ -64,6 +68,9 @@ def example_data(db):
     if photo_a and photo_b:
         db.execute_many_tuple(query_photo, photos)
 
+# The main function instantiates the DB class and the Main class.
+# It passes the DB instance object to the Main app, verify if it is a new db,
+#  and starts the main loop of the interface. 
 
 def main():      
     dB = DB(os.path.dirname(__file__)) # os.getcwd()

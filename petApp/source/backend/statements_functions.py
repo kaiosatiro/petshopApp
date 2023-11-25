@@ -1,4 +1,9 @@
-# ____________________ CONSULTAS ___________________
+# This file has ALL the functions that make CRUD calls on the DB.
+# These functions need a DB instance to be passed as a parameter and the values to be added, read, updated, or deleted, and this is where I set the   "query" statements.
+# This improves readability on the main file, where the interface will interact with the back-end functions.
+# The functons are organized by category RCUD.
+
+# ____________________ QUERIES ___________________
 def pet_query(bd, q:str):
     query = f"""
 SELECT
@@ -178,7 +183,7 @@ WHERE id in (SELECT id from recent_tutor);
     call = bd.query(query)
     return call
 
-# ________________________ ADICOES ____________________________
+# ________________________ ADDITIONS ____________________________
 def add_pet(bd, nome:str, raca:str, porte:str, sexo:str):
     tupla = (nome.title(), raca, porte, sexo)
     query = f"""
@@ -351,7 +356,7 @@ RETURNING raca;
     return call
 
 
-# REMOCOES
+# DELETES
 def remove_pet(bd, id:int):
     query = f"DELETE FROM pet WHERE id = {id};"
     call = bd.execute(query)

@@ -3,18 +3,23 @@ from .backend import file_handler_functions as fhf
 from .interface import App
 from .interface.frames import messages as msg
 
+#The main object instantiates the interface class (called App) 
+# and overrides the previously declared functions with the logic that interacts with the DB.
+#Also, it expects a DB instance to be used.
+#Here the back-end functions and the interface are bandled together.
+#And all the main functionality and behaviors are created.
 
 class Main(App):
     def __init__(self, dBinterface):
         #DB Inicialization
         self.dBI = dBinterface
         super().__init__()
-        self.set_breed_list()
-        self.set_recent_lists()
+        self.set_breed_list() #breed cache
+        self.set_recent_lists()#recent search cache
         self._recents()
-        self._section_select(2)      
+        self._section_select(2)#set the initial display section      
 
-
+    #tutors search cache in add/edit pets relation
     def set_tutor_list(self):
         self._tutors.clear()
         for r in sf.query_many_tutors(self.dBI):
@@ -96,7 +101,7 @@ class Main(App):
         elif call[0] == 'error':
             msg.error_message_bd(self._breed_panel, call[1])
             
-
+    #DB search for pet or tutors
     def search(self, *args):
         dado = self._search_data.get()
         if self._search_type.get() == 1:
@@ -128,7 +133,7 @@ class Main(App):
             return
         return call[0]
     
-
+    #Send the tutor data to tutor display
     def set_tutor_panel(self, id_):
         call_tutor = sf.query_tutor_by_id(self.dBI, id_)
         call_pets = sf.query_pet_tutor_relation(self.dBI, id_)
@@ -159,7 +164,7 @@ class Main(App):
             self._tutor_panel.set_table(call_pets)
         self.refresh_recent(2, call_tutor[0], False)
     
-
+    #Send pet data to be shown on the display with the tutors that have a relation
     def show_pet(self, pet_id):
         call_pet = sf.pet_query_by_id(self.dBI, pet_id)
         call_tutor = sf.query_tutor_pet_relation(self.dBI, pet_id)
@@ -220,6 +225,7 @@ class Main(App):
         self._section_select(1)
         self.refresh_recent(1, call_pet[0], False)
 
+
     def save_edit_tutor(self):
         get = self._tutor_panel.get()
         id_ = get['id']
@@ -264,7 +270,7 @@ class Main(App):
             msg.error_message(self, title="NOME EM BRANCO", message=f"{pet['name']} precisa de um nome !!!")
             return
         else:
-            # ATUALIZA TUTOR
+            # UPDATE TUTOR
             if self._tutorA_display.foi_trocado():
                 _call_ = sf.remove_relation(self.dBI, pet['id'], self._tutorA_display.get_old_id())
                 if _call_[0] == 'error':
@@ -287,13 +293,13 @@ class Main(App):
                         msg.error_message_bd(self, _call_[1])
                         return
                     
-            # ATUALIZA PET
+            # UPDATE PET
             _call_ = sf.pet_update(self.dBI, int(pet['id']), pet['name'], pet['breed'], pet['size'], pet['sex'])
             if _call_[0] == 'error':
                 msg.error_message_bd(self, _call_[1])
                 return
             
-            # FOTO
+            # PHOTO
             if pet['status_foto']:
                 dir_ = pet['photo_dir']
                 if not sf.quey_photo_by_id(self.dBI, pet['id']):
@@ -354,7 +360,7 @@ class Main(App):
             msg.error_message(self, title="CAMPOS EM BRANCO", message="Preencha todos os campos !")
             return
         
-        # ADICAO DO PET, FOTO, E DA RELACAO COM TUTOR
+        # PET ADITION, PHOTO, AND THE RELATION WITH TUTOR
         call_pet = sf.add_pet(self.dBI, pet['name'], pet['breed'], pet['size'], pet['sex'])
         if call_pet[0] == 'error':
             msg.error_message_bd(self, _call_[1])

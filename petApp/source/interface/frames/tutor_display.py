@@ -5,6 +5,8 @@ from PIL import Image
 import customtkinter as ctk
 from  CTkMessagebox import CTkMessagebox
 
+# Are all the behaviors of the tutor display. As shown, add/remove relation.
+# This display is only for displaying a tutor that has a relation with the pet.
 
 class TutorDisplay(ctk.CTkFrame):
     def __init__(self, master, titulo):

@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from CTkTable import *
 
+# This is the main tutor panel, where we can see, add, change, and remove all the tutor data.
+# It has the same behavior as the pet display. Data handling is made on the main file.
 
 class TutorPanel(ctk.CTkToplevel):
     def __init__(self, master):

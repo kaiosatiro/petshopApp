@@ -2,6 +2,13 @@ import os
 import sqlite3
 import logging
 
+#I created this object to handle all the interactions with the database.
+# It is instantiated with the directory path that should contain the DB file and the log file.
+# It creates the database if it does not exist with all the schemes ready and
+# sets the log configuration to be used later.
+# It has several methods to handle different database CRUD calls that I need based on
+# the best input-output, so I won't need to write an ideal call every time
+# I use one of the functions on the statements_functions file
 
 class DB:
     def __init__(self, path_):

@@ -4,6 +4,10 @@ from io import BytesIO
 from datetime import date
 import pandas as pd
 
+#This function I made to handle the exporting of the data to a .csv sheet file.
+# It gets the tables names and columns as stated on the DB.
+# Inside the first functions seek to automatize the process to communicate with the DB and handle the file.
+# The last functions will use these to save the information based on what the user chooses on the APP.
 
 def export_data(bd, choice, _dir):
     def save_file(path, data):
@@ -79,7 +83,9 @@ def export_data(bd, choice, _dir):
         else:
             return 'error', "Algo deu errado com ao menos uma das 3 planilhas." 
 
-
+#The second function was made to import information from a .csv or Excel file to the database. 
+# Since would be very confusing and impractical to manually create the relations between tables by hand.
+# The user should simply input pets, tutors, and breeds and on the app make the relations using the interface.
 def import_data(bd, choice, path):
     path =  os.path.realpath(path)
     ext = os.path.splitext(path)[1]
@@ -106,6 +112,7 @@ def import_data(bd, choice, path):
 
     return call
 
+#These last functions facilitate the readability when I need to handle pet images.
 
 def photo_to_blob(dir_):
     with open(dir_, 'rb') as file:

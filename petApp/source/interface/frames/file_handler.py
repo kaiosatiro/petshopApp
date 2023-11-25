@@ -4,6 +4,7 @@ from tkinter import filedialog
 import customtkinter as ctk
 from PIL import Image
 
+#This is the object that contains the display that handles the import/export of data through .csv or Excel files.
 
 class FileHandler(ctk.CTkToplevel):
     def __init__(self, master):

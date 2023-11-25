@@ -5,6 +5,9 @@ from PIL import Image
 
 from .frames import BreedsPanel, FileHandler, PetDisplay, SearchTable, TutorDisplay, TutorPanel, TutorSearchPanel
 
+# Here it was created the class that bundles all the interface objects in the frames folder together.
+# It will be instantiated on the main file toghether with the back-end functions,
+#  and inside a logic that handles the in/out DB data.
 
 class App(ctk.CTk):
     def __init__(self):
@@ -23,6 +26,7 @@ class App(ctk.CTk):
 
         self._add_img = ctk.CTkImage(Image.open(os.path.relpath("petApp/images/add_img.png")), size=(28,28))
 
+        # VARIABLES TO CACHE SOME DATA
         #VARS
         self._breeds = []
         self._tutors = [] #For quick search
@@ -31,6 +35,7 @@ class App(ctk.CTk):
         self._search_data = ctk.StringVar(value='')
         self._search_type = ctk.IntVar(value=1)
 
+        #VARIABLE TO KEPT THE DISPLAYS OBJECTS.
         #FRAMES
         self._breed_panel = None
         self._tutors_search = None
@@ -41,7 +46,7 @@ class App(ctk.CTk):
         self._tutorB_display = TutorDisplay(self, 'Tutor 2')
         self._search_table = SearchTable(self)
 
-        #AREA DE PESQUISA
+        #SEARCH AREA OBJECTS
         self._search_label = ctk.CTkLabel(self, text='Busca:', font=('Torus Notched Regular', 32, 'bold'))
         self._search_entry = ctk.CTkEntry(
             self, textvariable=self._search_data,
@@ -146,6 +151,9 @@ class App(ctk.CTk):
         self._radio_callback()
         # self._section_select(1)
 
+    #I pre-declare these functions just to keep on track what I will need. 
+    #They will be overridden on the main file with the logic that interacts with the DB.
+
     def search(self, *args):
         raise NotImplementedError("Please Implement this method")
 
@@ -208,6 +216,8 @@ class App(ctk.CTk):
     
     def import_data(self, choice, path):
         raise NotImplementedError("Please Implement this method")
+    
+    #FUNCTIONS THAT INSTANTIATED THE TOP DISPLAYS, VALIDATING THEIR EXISTENCE BEFORE
 
     def _call_file_handler(self):
         if self._file_handler is None or not self._file_handler.winfo_exists():
@@ -232,10 +242,12 @@ class App(ctk.CTk):
             self._tutor_panel = TutorPanel(self)
 
     def _call_new_tutor_panel(self):
+        #THIS CALL THE TUTOR DISPLAY BUT EMPTY
         self._call_tutor_panel()
         self._tutor_panel.grid_adition()      
 
     def _radio_callback(self):
+        # MADE THIS FUNCTION TO HANDLE THE SEARCH TABLE BY TUTOR OR PET 
         if self._search_type.get() == 1:
             self._table_title_label.configure(text='PETS')
         elif self._search_type.get() == 2:
@@ -244,11 +256,13 @@ class App(ctk.CTk):
         self._recents()
     
     def _recents(self):
+        #MADE THIS FUNCTION TO SHOW RECENT VISITED PETS 
         if self._search_type.get() == 1:
             self._search_table.set(1, self._recent_pets)
         elif self._search_type.get() == 2:
             self._search_table.set(2, self._recent_tutors)
     
+    #
     def _grid_pet_edition(self):
         self._bt_delete_pet.grid(row=0, column=0, padx=10, pady=(10, 0), sticky='w')
         self._bt_cancel_edit.grid(row=3, column=1,  sticky='nsw', padx=10, pady=10)
@@ -281,6 +295,9 @@ class App(ctk.CTk):
         self._bt_search_display.configure(state='disabled')
         self._section_select(1)
 
+    # THESE BELOW FUNCTIONS HANDLE THE GRID POSITIONS OF MANY INTERFACE OBJECTS 
+    # ACCORDING TO THE BEHAVIOR WANTED LIKE AN EDITION OR A NEW REGISTER. 
+
     def _grid_cancel_edit(self):
         self._bt_delete_pet.grid_forget()
         self._bt_cancel_edit.grid_forget()
@@ -309,6 +326,8 @@ class App(ctk.CTk):
         self._bt_search_display.configure(state='normal')
         self._bt_back.configure(state='disabled')
         self._section_select(2)
+
+    #THIS FUNCTION HANDLES THE INTERFACE SECTION THAT WE WANT TO SEE, FUTURE IT MAY HAVE A SERVICE SECTION
 
     def _section_select(self, frame):
         if frame == 1:

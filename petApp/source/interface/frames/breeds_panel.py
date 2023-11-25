@@ -3,6 +3,9 @@ import os
 from PIL import Image
 import customtkinter as ctk
 
+# This object creates the breed display.
+# On the update_list function, we need to create the list table every time there is a change on the DB
+# It uses the cache variables defined on the interface file. 
 
 class BreedsPanel(ctk.CTkToplevel):
     #button.configure(command=lambda: self.command(item))
